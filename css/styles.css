@@ -42,6 +42,31 @@ h3 { font-size: 1.25rem; margin-top: 1.8rem; }
 
 p { margin: 0 0 0.85rem; color: var(--clr-fg); }
 
+/* ---------- Form (fluid sizing) ---------- */
+@media (max-width: 600px) {
+  #hexForm {
+    grid-template-columns: 1fr;         /* 1-column stack                   */
+    padding: 1rem 1rem 1.25rem;
+  }
+
+  #hexForm label { font-size: clamp(1rem, 4.5vw, 1.15rem); }
+
+  #hexForm input[type="number"],
+  #drawInputs input[type="number"] {
+    font-size: clamp(1rem, 5vw, 1.25rem);
+    padding: 0.6rem 0.7rem;             /* thumb-friendly                   */
+  }
+
+  button[type="submit"] {
+    grid-column: 1 / -1;                /* full-width button                */
+    width: 100%;
+    font-size: clamp(1rem, 4.5vw, 1.2rem);
+    padding: 0.75rem 1.3rem;
+  }
+
+  fieldset { grid-column: 1 / -1; }
+}
+
 /* ---------- Form layout ---------- */
 #hexForm {
   max-width: 780px;
@@ -149,14 +174,6 @@ button[type="submit"]:active {
   margin-left: 0.35rem;
 }
 
-/* line diagram (preformatted block) */
-pre {
-  font-family: "Courier New", monospace;
-  font-size: 1.15rem;
-  margin: 0.75rem 0 1.25rem;
-  white-space: pre-wrap;
-}
-
 .moving {            /* ← highlight kept red                */
   color: var(--clr-accent);
   font-weight: 700;
@@ -167,12 +184,15 @@ table {
   width: 100%;
   border-collapse: collapse;
   margin: 0.65rem 0 1.5rem;
-  font-size: 0.95rem;
+  font-size: clamp(0.98rem, 3.8vw, 1.1rem);
 }
 
-th,
-td {
+th, td {
   padding: 0.4rem 0.6rem;
+}
+
+@media (max-width: 480px) {
+  th, td { white-space: normal; }      /* override your current nowrap      */
 }
 
 th {
@@ -231,8 +251,8 @@ td:last-child {
 }
 
 .line-svg {                     /* 120 px line graphic                       */
-  width: 120px;
-  height: 12px;
+  width: clamp(140px, 45vw, 260px);
+  height: auto;
   flex-shrink: 0;
 }
 
