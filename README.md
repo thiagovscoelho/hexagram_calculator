@@ -1,6 +1,6 @@
 # I Ching Hexagram Calculator
 
-A tiny, self-contained web app that lets you **cast and explore I Ching hexagrams** with nothing more than your browser and a couple of _d8_ (eight-sided dice).  
+A tiny, self-contained web app (live [here](https://thiagovscoelho.github.io/hexagram_calculator/)) that lets you **cast and explore I Ching hexagrams** with nothing more than your browser and a couple of _d8_ (eight-sided dice).  
 Enter the two trigram rolls (lower and upper) and—if you wish—the six individual line rolls to see:
 
 * The primary hexagram, its glyph, binary/decimal value, and trigram makeup  
