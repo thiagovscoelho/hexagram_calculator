@@ -74,29 +74,68 @@ function renderResults(hex, draws) {
     'The Sage'             // line 6  (top)
   ];
 
-  const pre  = document.createElement('pre');
-  const yang = '———';
-  const yin  = '— —';
+  // ─── graphical line diagram + commentary ─────────────────────────────────
+  const diagram = document.createElement('div');
+  diagram.className = 'lines-diagram';
 
-  for (let i = 5; i >= 0; i--) {            // i = 5 (top) … 0 (bottom)
+  const svgNS = 'http://www.w3.org/2000/svg';
+
+  for (let i = 5; i >= 0; i--) {          // i = 5 (top)…0 (bottom)
     const bit       = hex.lines[i];                 // 0 = yin, 1 = yang
     const moving    = draws ? hex.movingLines[i] : false;
-    const targetBit = moving ? 1 - bit : bit;       // after flip, if any
+    const targetBit = moving ? 1 - bit : bit;
 
-    const glyph     = bit === 1 ? yang : yin;
-    const nowStr    = bit       === 1 ? 'Strong' : 'Weak';
-    const thenStr   = targetBit === 1 ? 'Strong' : 'Weak';
-    const arrow     = moving ? ` → ${thenStr}` : '';
+    const nowStr  = bit       === 1 ? 'Strong' : 'Weak';
+    const thenStr = targetBit === 1 ? 'Strong' : 'Weak';
+    const arrow   = moving ? ` → ${thenStr}` : '';
 
-    const lineNo    = i + 1;                        // 1 … 6
-    const textRow   = `${glyph}  Line ${lineNo} – ${roles[i]} – ${nowStr}${arrow}`;
+    /* row wrapper */
+    const row = document.createElement('div');
+    row.className = 'line-row';
+    if (moving) row.classList.add('moving');
 
-    pre.innerHTML += moving
-        ? `<span class="moving">${textRow}</span>\n`
-        : `${textRow}\n`;
+    /* SVG line (full or broken) */
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('class', 'line-svg');
+    svg.setAttribute('viewBox', '0 0 120 12');
+
+    if (bit === 1) {                         // yang ———
+      const rect = document.createElementNS(svgNS, 'rect');
+      rect.setAttribute('x', 0);
+      rect.setAttribute('y', 0);
+      rect.setAttribute('width', 120);
+      rect.setAttribute('height', 12);
+      svg.appendChild(rect);
+    } else {                                 // yin — —
+      const left  = document.createElementNS(svgNS, 'rect');
+      left.setAttribute('x', 0);
+      left.setAttribute('y', 0);
+      left.setAttribute('width', 50);
+      left.setAttribute('height', 12);
+
+      const right = document.createElementNS(svgNS, 'rect');
+      right.setAttribute('x', 70);           // 20 px centre gap
+      right.setAttribute('y', 0);
+      right.setAttribute('width', 50);
+      right.setAttribute('height', 12);
+
+      svg.appendChild(left);
+      svg.appendChild(right);
+    }
+
+    /* text info */
+    const txt = document.createElement('span');
+    txt.className = 'line-info';
+    txt.textContent = `Line ${i + 1} – ${roles[i]} – ${nowStr}${arrow}`;
+
+    /* put SVG + text into row, add to diagram */
+    row.appendChild(svg);
+    row.appendChild(txt);
+    diagram.appendChild(row);
   }
 
-  targetDiv.appendChild(pre);
+  targetDiv.appendChild(diagram);
+
 
   // ─── Line information section ───────────────────────────────────────────
   const infoDiv = document.createElement('div');

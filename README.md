@@ -68,7 +68,7 @@ If you leave every line roll blank the app assumes a fixed hexagram.
    * Generates six optional draw inputs at load time
    * Validates form, instantiates `Hexagram`, and calls `renderResults()`
    * Renders headings, line diagram, analysis blocks, and several HTML tables
-3. **Styling** (`css/styles.css`) – still pretty simple for now.
+3. **Styling** (`css/styles.css`)
 
 Because the logic and UI are decoupled, you can embed the **core** classes in other projects (Node/deno scripts, React apps, etc.) with no changes.
 
@@ -90,6 +90,6 @@ Because the logic and UI are decoupled, you can embed the **core** classes in ot
 
 ## Credits & license
 
-The code is public domain (CC0).
+The code is public domain (CC0). The webpage imports the Google Fonts font “Inter”, which is licensed under the OFL.
 
 The hexagram names, as well as the concept of hexagram stories and hexagram flowers, are due to Edward Hacker’s *I Ching Handbook*.

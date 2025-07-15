@@ -1,59 +1,248 @@
-    body {
-      font-family: system-ui, serif;
-      margin: 2rem;
-      line-height: 1.5;
-    }
-    h1 {
-      font-size: 1.75rem;
-      margin-bottom: 1rem;
-    }
-    label {
-      display: block;
-      margin-top: 0.75rem;
-    }
-    input[type="number"] {
-      width: 4.5rem;
-      padding: 0.2rem 0.3rem;
-      font-size: 1rem;
-    }
-    fieldset {
-      margin-top: 1rem;
-      border: 1px solid #ccc;
-      padding: 0.75rem 1rem 1rem;
-    }
-    legend {
-      font-weight: 600;
-      margin-left: 0.5rem;
-      padding: 0 0.25rem;
-    }
-    button {
-      margin-top: 1.25rem;
-      padding: 0.4rem 1rem;
-      font-size: 1rem;
-      border: 1px solid #666;
-      background: #f4f4f4;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #e5e5e5;
-    }
-    #results {
-      margin-top: 2rem;
-      border-top: 2px solid #aaa;
-      padding-top: 1.5rem;
-    }
-    .glyph {
-      font-size: 2.25rem;
-      line-height: 1;
-      vertical-align: middle;
-    }
-    pre {
-      font-family: "Courier New", monospace;
-      font-size: 1.15rem;
-      margin: 0.5rem 0 1rem;
-    }
-    .moving {
-      color: #c00;
-      font-weight: 700;
-    }
+/* ========== Global design tokens ========== */
+:root {
+  --font: "Inter", "Helvetica Neue", Arial, sans-serif;
+
+  --clr-bg: #fafafa;           /* page background   */
+  --clr-fg: #222;              /* main foreground   */
+  --clr-subtle: #666;          /* muted text        */
+  --clr-border: #d9d9d9;       /* light borders     */
+  --clr-panel: #ffffff;        /* form & result bg  */
+
+  --clr-accent: #c00;          /* ← DO NOT CHANGE   */
+  --radius: 6px;
+  --shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* ---------- Resets & base styles ---------- */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 2rem 1rem;
+  font-family: var(--font);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--clr-fg);
+  background: var(--clr-bg);
+}
+
+/* ---------- Typography ---------- */
+h1, h2, h3, h4 {
+  font-family: var(--font);
+  margin: 0 0 0.75rem;
+  line-height: 1.25;
+}
+
+h1 { font-size: clamp(1.8rem, 3.5vw, 2.25rem); text-align: center; }
+h2 { font-size: 1.5rem; margin-top: 2.2rem; }
+h3 { font-size: 1.25rem; margin-top: 1.8rem; }
+
+p { margin: 0 0 0.85rem; color: var(--clr-fg); }
+
+/* ---------- Form layout ---------- */
+#hexForm {
+  max-width: 780px;
+  margin: 0 auto 2rem;
+  padding: 1.5rem 1.75rem 2rem;
+  background: var(--clr-panel);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 1.25rem 1.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+#hexForm label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 500;
+  gap: 0.35rem;
+}
+
+#hexForm input[type="number"] {
+  width: 100%;
+  padding: 0.45rem 0.5rem;
+  font: inherit;
+  text-align: center;
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius);
+  transition: border-color 0.15s;
+}
+
+#hexForm input[type="number"]:focus {
+  outline: none;
+  border-color: var(--clr-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--clr-accent) 40%, transparent);
+}
+
+/* fieldset (moving-line draws) */
+fieldset {
+  grid-column: span 2;
+  padding: 1rem 1rem 1.25rem;
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius);
+}
+
+legend {
+  padding: 0 0.4rem;
+  font-weight: 600;
+  font-family: var(--font);
+}
+
+#drawInputs {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+#drawInputs input[type="number"] {
+  width: 3.5rem;
+}
+
+/* helper blurb inside fieldset */
+fieldset p {
+  margin-top: 0.6rem !important;
+  font-size: 0.85rem;
+  color: var(--clr-subtle);
+}
+
+/* ---------- Submit button ---------- */
+button[type="submit"] {
+  grid-column: span 2;
+  justify-self: start;
+  background: var(--clr-accent);
+  color: #fff;
+  font-weight: 600;
+  padding: 0.55rem 1.3rem;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+
+button[type="submit"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+button[type="submit"]:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* ---------- Results section ---------- */
+#results {
+  max-width: 980px;
+  margin-inline: auto;
+  padding-bottom: 4rem;
+}
+
+.glyph {
+  font-size: 2.6rem;
+  line-height: 1;
+  vertical-align: middle;
+  margin-left: 0.35rem;
+}
+
+/* line diagram (preformatted block) */
+pre {
+  font-family: "Courier New", monospace;
+  font-size: 1.15rem;
+  margin: 0.75rem 0 1.25rem;
+  white-space: pre-wrap;
+}
+
+.moving {            /* ← highlight kept red                */
+  color: var(--clr-accent);
+  font-weight: 700;
+}
+
+/* ---------- Tables (derived, cycle, flower, story) ---------- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.65rem 0 1.5rem;
+  font-size: 0.95rem;
+}
+
+th,
+td {
+  padding: 0.4rem 0.6rem;
+}
+
+th {
+  text-align: left;
+  border-bottom: 2px solid var(--clr-border);
+  font-weight: 600;
+  font-family: var(--font);
+}
+
+tr:nth-child(even) td {
+  background: #f5f5f5;
+}
+
+tr:hover td {
+  background: #eee;
+}
+
+/* emphasise highlighted rows (e.g., target hexagram) */
+tr[style*="color: #c00"] td {
+  color: var(--clr-accent);
+  font-weight: 700;
+}
+
+/* ensure large glyphs don’t break layout */
+td:last-child {
+  font-size: 1.35rem;
+  white-space: nowrap;
+}
+
+/* ---------- Utilities & media queries ---------- */
+/* Make long tables horizontally scrollable on very small screens */
+@media (max-width: 480px) {
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+
+/* Slightly tighten vertical rhythm on large screens */
+@media (min-width: 900px) {
+  body { font-size: 1.0625rem; }
+  th, td { padding: 0.45rem 0.8rem; }
+}
+
+/* === Graphical line diagram ============================================== */
+.lines-diagram {                /* wrapper for all six lines                 */
+  margin: 0.6rem 0 1.2rem;
+}
+
+.line-row {                     /* one line + its text                       */
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.4rem 0;
+}
+
+.line-svg {                     /* 120 px line graphic                       */
+  width: 120px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+.line-svg rect {
+  fill: var(--clr-fg);          /* dark grey/black                           */
+}
+
+.moving .line-svg rect {        /* highlight moving lines in red             */
+  fill: var(--clr-accent);
+}
+
+.line-info {                    /* text to the right of the line             */
+  font-family: var(--font-sans);
+}
