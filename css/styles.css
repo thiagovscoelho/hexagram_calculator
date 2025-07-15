@@ -316,3 +316,56 @@ td:last-child {
   width: 100%;
   min-width: 0;
 }
+
+
+/* More responsivity fixes */
+
+/* ────────────────────────────────────────────────────────────
+   0 · let grid items shrink instead of enforcing their own min-width
+   ──────────────────────────────────────────────────────────── */
+#hexForm > * { min-width: 0; }          /* critical, prevents overflow */
+
+/* ────────────────────────────────────────────────────────────
+   1 · viewport-clamped width + earlier “single-column” switch
+   ──────────────────────────────────────────────────────────── */
+@media (max-width: 780px) {             /* kicks in before the 780-px cap */
+  #hexForm {
+    width: 100%;
+    max-width: calc(100% - 2rem);       /* respect body’s 1-rem padding   */
+    grid-template-columns: 1fr;         /* stack labels + inputs          */
+    padding: 1rem 1rem 1.25rem;         /* slimmer interior padding       */
+    gap: 1rem;
+  }
+
+  /* everything spans that single track */
+  #hexForm label,
+  #hexForm fieldset,
+  #hexForm button[type="submit"] { grid-column: 1 / -1; }
+
+  /* button fills the track exactly – no right-edge “poke” */
+  #hexForm button[type="submit"] {
+    justify-self: stretch;
+    width: auto;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────
+   2 · tidy draw-input grid:
+       – six per row above 420 px
+       – clean 3 × 2 below that
+   ──────────────────────────────────────────────────────────── */
+#drawInputs {
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: repeat(auto-fit, minmax(3.2rem, 1fr));
+}
+
+@media (max-width: 420px) {
+  #drawInputs { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* each little box stretches nicely inside its cell */
+#drawInputs input[type="number"] {
+  width: 100%;
+  min-width: 0;
+}
