@@ -268,59 +268,52 @@ td:last-child {
   font-family: var(--font-sans);
 }
 
+/* ------------------------------------------------------------------
+   Mobile-only fixes (≤ 640 px) – place after your current stylesheet
+   ------------------------------------------------------------------ */
 
-/* === MOBILE FIXES (≤ 480 px) ==================================== */
-@media (max-width: 480px) {
-  /* 1 ─ Make the whole form a single-column grid so nothing can push
-         wider than the screen.  The min() keeps the original two-
-         column layout once we’re above 480 px again.               */
+/* 1 ✦ stop grid items from insisting on their “ideal” width
+      (the implicit min-width:auto is what makes them overflow) */
+#hexForm > * { min-width: 0; }
+
+/* 2 ✦ one-column stack on narrow screens */
+@media (max-width: 640px) {
+
   #hexForm {
-    grid-template-columns: 1fr;                 /* force one column   */
-    padding: 1rem 1rem 1.5rem;
+    grid-template-columns: 1fr;       /* ← single column                 */
+    padding: 1rem 1rem 1.25rem;
   }
 
-  /* 2 ─ If the grid has only one column, spanning two columns
-         will create phantom tracks → overflow.  Make the button
-         simply take the *existing* column.                        */
-  button[type="submit"] {
-    grid-column: 1 / -1;                        /* span all real cols */
-    width: 100%;
-  }
-
-  /* 3 ─ Labels & controls: bump the font up a touch so they stay
-         readable after we shrank the padding.                      */
+  /* everything spans that single column */
   #hexForm label,
-  #hexForm input[type="number"],
-  button[type="submit"] {
-    font-size: clamp(1rem, 4.5vw, 1.15rem);
+  #hexForm fieldset,
+  #hexForm button[type="submit"] {
+    grid-column: 1 / -1;
+  }
+
+  /* full-width, but confined to the grid track – no “overshoot” */
+  #hexForm button[type="submit"] {
+    justify-self: stretch;
+    width: auto;
   }
 }
 
-/* === DRAW-INPUT LAYOUT ========================================== */
-/* We switch from your original flexbox to CSS-grid, which lets us
-   *guarantee* a “6-in-a-row” or “3×2” arrangement.                */
+/* 3 ✦ keep the six draw inputs tidy:
+      – 6-wide above 430 px
+      – 3 × 2 below that                                    */
 #drawInputs {
   display: grid;
   gap: 0.55rem;
+  grid-template-columns: repeat(auto-fit, minmax(3.5rem, 1fr));
 }
 
-/* phones in portrait: 3 × 2 */
-@media (max-width: 480px) {
-  #drawInputs {
-    grid-template-columns: repeat(3, 1fr);
-  }
+/* force a neat 3 × 2 when the row can’t hold six inputs */
+@media (max-width: 430px) {
+  #drawInputs { grid-template-columns: repeat(3, 1fr); }
 }
 
-/* anything wider: keep all six in one row */
-@media (min-width: 481px) {
-  #drawInputs {
-    grid-template-columns: repeat(6, 1fr);
-  }
-}
-
-/* make each little box fill its grid cell */
+/* make sure the little boxes themselves flex nicely */
 #drawInputs input[type="number"] {
-  width: 100%;             /* override the earlier 3.5 rem width   */
-  min-height: 44px;        /* touch-friendly tap target            */
-  text-align: center;
+  width: 100%;
+  min-width: 0;
 }
