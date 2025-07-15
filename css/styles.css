@@ -246,18 +246,22 @@ td:last-child {
   margin: 0.6rem 0 1.2rem;
 }
 
-.line-row {                     /* one line + its text                       */
-  display: grid;
-  align-items: left;
-  grid-template-columns: minmax(90px, 1fr) auto;
+.line-row {
+  display: flex;
+  align-items: center;
   gap: 0.75rem;
-  margin: 0.4rem 0;
 }
 
-.line-svg {                     /* 120 px line graphic                       */
-  width: 100%;
-  height: 12px;
-  flex-shrink: 0;
+/* ▸ SVG bar
+  • prefers 260 px (desktop/tablet)
+  • shrinks smoothly, bottoming out at 90 px (phones)
+  • never grows beyond 260 px → avoids huge empty gaps              */
+.line-svg {
+  flex: 0 1 260px;            /* flex-basis 260, allow shrink, no grow */
+  width: 100%;                /* fill its flex-basis                    */
+  min-width: 90px;            /* stay visible on very narrow screens    */
+  max-width: 260px;
+  height: 12px;               /* keep existing height                   */
 }
 
 .line-svg rect {
@@ -268,11 +272,15 @@ td:last-child {
   fill: var(--clr-accent);
 }
 
-.line-info {                    /* text to the right of the line             */
-  font-family: var(--font-sans);
-  white-space: nowrap;                   /* never wrap mid-label        */
-  overflow: hidden;                      /* safety for ultra-narrow scr */
-  text-overflow: ellipsis;               /* …show ellipsis if required  */
+/* Label
+  • stays on one line
+  • does NOT shrink (so text never wraps)
+  • ellipsis only if viewport is truly narrower than label itself   */
+.line-info {
+  flex: 0 0 auto;             /* fixed-width: use its content width     */
+  white-space: nowrap;        /* no wrapping                            */
+  overflow: hidden;
+  text-overflow: ellipsis;    /* graceful fallback on ultra-narrow kits */
 }
 
 /* ──────────────────────────────────────────────────────────────
