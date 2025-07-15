@@ -268,51 +268,50 @@ td:last-child {
   font-family: var(--font-sans);
 }
 
-/* ------------------------------------------------------------------
-   Mobile-only fixes (≤ 640 px) – place after your current stylesheet
-   ------------------------------------------------------------------ */
+/* ──────────────────────────────────────────────────────────────
+   Mobile containment + orderly draw boxes
+   ────────────────────────────────────────────────────────────── */
 
-/* 1 ✦ stop grid items from insisting on their “ideal” width
-      (the implicit min-width:auto is what makes them overflow) */
+/* 0. Let grid items shrink instead of forcing a huge min-content width */
 #hexForm > * { min-width: 0; }
 
-/* 2 ✦ one-column stack on narrow screens */
-@media (max-width: 640px) {
-
+/* 1. ≤ 600 px  → single column, padding tweaked, nothing can overflow  */
+@media (max-width: 600px) {
   #hexForm {
-    grid-template-columns: 1fr;       /* ← single column                 */
-    padding: 1rem 1rem 1.25rem;
+    width: 100%;                /* never wider than the viewport      */
+    max-width: 100%;
+    padding: 1rem 1rem 1.25rem; /* slimmer interior padding           */
+    grid-template-columns: 1fr; /* stack everything                   */
+    gap: 1rem;
   }
 
-  /* everything spans that single column */
+  /* every direct child spans that single column */
   #hexForm label,
   #hexForm fieldset,
-  #hexForm button[type="submit"] {
-    grid-column: 1 / -1;
-  }
+  #hexForm button[type="submit"] { grid-column: 1 / -1; }
 
-  /* full-width, but confined to the grid track – no “overshoot” */
+  /* button fills the track exactly – no left/right “overshoot” */
   #hexForm button[type="submit"] {
     justify-self: stretch;
     width: auto;
   }
 }
 
-/* 3 ✦ keep the six draw inputs tidy:
-      – 6-wide above 430 px
-      – 3 × 2 below that                                    */
+/* 2. Draw-input grid:
+      – six in a row when they fit
+      – switch to a clean 3 × 2 below ~380 px                 */
 #drawInputs {
   display: grid;
   gap: 0.55rem;
-  grid-template-columns: repeat(auto-fit, minmax(3.5rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(3.2rem, 1fr));
 }
 
-/* force a neat 3 × 2 when the row can’t hold six inputs */
-@media (max-width: 430px) {
+/* fallback for browsers without container queries */
+@media (max-width: 380px) {
   #drawInputs { grid-template-columns: repeat(3, 1fr); }
 }
 
-/* make sure the little boxes themselves flex nicely */
+/* make each little box flex nicely */
 #drawInputs input[type="number"] {
   width: 100%;
   min-width: 0;
