@@ -267,3 +267,60 @@ td:last-child {
 .line-info {                    /* text to the right of the line             */
   font-family: var(--font-sans);
 }
+
+
+/* === MOBILE FIXES (≤ 480 px) ==================================== */
+@media (max-width: 480px) {
+  /* 1 ─ Make the whole form a single-column grid so nothing can push
+         wider than the screen.  The min() keeps the original two-
+         column layout once we’re above 480 px again.               */
+  #hexForm {
+    grid-template-columns: 1fr;                 /* force one column   */
+    padding: 1rem 1rem 1.5rem;
+  }
+
+  /* 2 ─ If the grid has only one column, spanning two columns
+         will create phantom tracks → overflow.  Make the button
+         simply take the *existing* column.                        */
+  button[type="submit"] {
+    grid-column: 1 / -1;                        /* span all real cols */
+    width: 100%;
+  }
+
+  /* 3 ─ Labels & controls: bump the font up a touch so they stay
+         readable after we shrank the padding.                      */
+  #hexForm label,
+  #hexForm input[type="number"],
+  button[type="submit"] {
+    font-size: clamp(1rem, 4.5vw, 1.15rem);
+  }
+}
+
+/* === DRAW-INPUT LAYOUT ========================================== */
+/* We switch from your original flexbox to CSS-grid, which lets us
+   *guarantee* a “6-in-a-row” or “3×2” arrangement.                */
+#drawInputs {
+  display: grid;
+  gap: 0.55rem;
+}
+
+/* phones in portrait: 3 × 2 */
+@media (max-width: 480px) {
+  #drawInputs {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* anything wider: keep all six in one row */
+@media (min-width: 481px) {
+  #drawInputs {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+/* make each little box fill its grid cell */
+#drawInputs input[type="number"] {
+  width: 100%;             /* override the earlier 3.5 rem width   */
+  min-height: 44px;        /* touch-friendly tap target            */
+  text-align: center;
+}
