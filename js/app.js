@@ -56,12 +56,24 @@ function renderResults(hex, draws) {
   targetDiv.appendChild(heading);
 
   // basic stats
+  const binary = hex.binaryRepresentation;
+  const dashedBinary = `${binary.slice(0, 3)}-${binary.slice(3)}`;
+
   const pMeta = document.createElement('p');
-  pMeta.innerHTML = `<strong>Binary:</strong> ${hex.binaryRepresentation} &nbsp; • &nbsp; <strong>Decimal:</strong> ${hex.decimalBinaryValue}`;
+  pMeta.innerHTML =
+    `<strong>Binary:</strong> ${dashedBinary} &nbsp; • &nbsp; ` +
+    `<strong>Decimal:</strong> ${hex.decimalBinaryValue}`;
+
   targetDiv.appendChild(pMeta);
 
+  /* ---------- upper / lower trigram read-out ---------- */
   const pTris = document.createElement('p');
-  pTris.innerHTML = `<strong>Lower:</strong> ${hex.lowerTrigram.name} ${hex.lowerTrigram.glyph} (${hex.lowerTrigram.binaryRepresentation}) &nbsp; • &nbsp; <strong>Upper:</strong> ${hex.upperTrigram.name} ${hex.upperTrigram.glyph} (${hex.upperTrigram.binaryRepresentation})`;
+  pTris.innerHTML =
+    `<strong>Upper trigram:</strong> Trigram ${hex.upperTrigram.sequence} ${hex.upperTrigram.glyph} ` +
+    `${hex.upperTrigram.binaryRepresentation} (${hex.upperTrigram.decimalBinaryValue}) ${hex.upperTrigram.name}<br>` +
+    `<strong>Lower trigram:</strong> Trigram ${hex.lowerTrigram.sequence} ${hex.lowerTrigram.glyph} ` +
+    `${hex.lowerTrigram.binaryRepresentation} (${hex.lowerTrigram.decimalBinaryValue}) ${hex.lowerTrigram.name}`;
+
   targetDiv.appendChild(pTris);
 
   // ─── line diagram + per-line commentary ──────────────────────────────────
