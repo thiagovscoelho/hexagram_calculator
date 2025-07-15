@@ -297,26 +297,6 @@ td:last-child {
   }
 }
 
-/* 2. Draw-input grid:
-      – six in a row when they fit
-      – switch to a clean 3 × 2 below ~380 px                 */
-#drawInputs {
-  display: grid;
-  gap: 0.55rem;
-  grid-template-columns: repeat(auto-fit, minmax(3.2rem, 1fr));
-}
-
-/* fallback for browsers without container queries */
-@media (max-width: 380px) {
-  #drawInputs { grid-template-columns: repeat(3, 1fr); }
-}
-
-/* make each little box flex nicely */
-#drawInputs input[type="number"] {
-  width: 100%;
-  min-width: 0;
-}
-
 
 /* More responsivity fixes */
 
@@ -349,23 +329,34 @@ td:last-child {
   }
 }
 
-/* ────────────────────────────────────────────────────────────
-   2 · tidy draw-input grid:
-       – six per row above 420 px
-       – clean 3 × 2 below that
-   ──────────────────────────────────────────────────────────── */
+/* ─────────────────────────────
+   Draw boxes: 6-wide → 3×2
+   ───────────────────────────── */
+
+/* default = six equal columns; each box stretches */
 #drawInputs {
   display: grid;
   gap: 0.55rem;
-  grid-template-columns: repeat(auto-fit, minmax(3.2rem, 1fr));
+  /* 3.2 rem is the actual box, 6 × (3.2 rem + gap) ≈ 22 rem ≈ 352 px   */
+  grid-template-columns: repeat(6, minmax(3.2rem, 1fr));
 }
 
-@media (max-width: 420px) {
-  #drawInputs { grid-template-columns: repeat(3, 1fr); }
+/* when the container (or viewport) is too narrow for 6 × 3.2 rem
+   switch cleanly to 3 columns → 3 × 2 layout                    */
+@media (max-width: 380px) {          /* tweak if your breakpoint differs */
+  #drawInputs { grid-template-columns: repeat(3, minmax(3.2rem, 1fr)); }
 }
 
-/* each little box stretches nicely inside its cell */
 #drawInputs input[type="number"] {
   width: 100%;
-  min-width: 0;
+  min-width: 0;                      /* allow full shrinking             */
+}
+
+/* ─────────────────────────────
+   ❷  Legend: allow wrapping
+   ───────────────────────────── */
+legend {
+  white-space: normal;               /* permit line breaks               */
+  overflow-wrap: anywhere;           /* emergency breaks if needed       */
+  max-width: 100%;                   /* never wider than the fieldset    */
 }
