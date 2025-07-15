@@ -14,8 +14,8 @@ All output is rendered client-side; no network calls, builds, or dependencies re
 ## Quick-start
 
 ```bash
-git clone https://github.com/your-username/iching-hexagram-calculator.git
-cd iching-hexagram-calculator
+git clone https://github.com/thiagovscoelho/hexagram_calculator
+cd hexagram_calculator
 # No build step – just open the page
 ````
 
