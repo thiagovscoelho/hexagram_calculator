@@ -23,6 +23,7 @@ body {
   padding: 2rem 1rem;
   font-family: var(--font);
   font-size: 1rem;
+  font-variant-numeric: tabular-nums;
   line-height: 1.6;
   color: var(--clr-fg);
   background: var(--clr-bg);
