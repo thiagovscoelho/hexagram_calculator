@@ -248,7 +248,7 @@ td:last-child {
 
 .line-row {                     /* one line + its text                       */
   display: grid;
-  align-items: center;
+  align-items: left;
   grid-template-columns: minmax(90px, 1fr) auto;
   gap: 0.75rem;
   margin: 0.4rem 0;
