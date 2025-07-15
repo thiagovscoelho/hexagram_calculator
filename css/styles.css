@@ -360,3 +360,36 @@ legend {
   overflow-wrap: anywhere;           /* emergency breaks if needed       */
   max-width: 100%;                   /* never wider than the fieldset    */
 }
+
+/* ────────────────────────────────────────────────
+   ❶  Draw boxes … never “5 + 1”
+   ──────────────────────────────────────────────── */
+
+/* default: six equal columns that stretch/shrink with the panel */
+#drawInputs {
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: repeat(6, minmax(3.2rem, 1fr));
+}
+
+/* if the panel can’t hold those six, switch cleanly to 3 × 2     */
+/* tune the 520-px breakpoint up/down to taste;                   */
+/* it just needs to be wider than 6 × (3.2 rem + gap) + panel padd */
+@media (max-width: 520px) {
+  #drawInputs { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* make each little box flex inside its cell */
+#drawInputs input[type="number"] {
+  width: 100%;
+  min-width: 0;
+}
+
+/* ────────────────────────────────────────────────
+   ❷  Legend – wrap between words only
+   ──────────────────────────────────────────────── */
+legend {
+  white-space: normal;          /* allow wrapping                    */
+  overflow-wrap: break-word;    /* break *words* only if unavoidable */
+  max-width: 100%;              /* never wider than its field-set    */
+}
