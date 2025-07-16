@@ -1,6 +1,6 @@
-# I Ching Hexagram Calculator
+# I Ching Hexagram Calculator
 
-A tiny, self-contained web app (live [here](https://thiagovscoelho.github.io/hexagram_calculator/)) that lets you **cast and explore I Ching hexagrams** with nothing more than your browser and a couple of _d8_ (eight-sided dice).  
+A tiny, self-contained web app (live [here](https://thiagovscoelho.github.io/hexagram_calculator/)) that lets you **cast and explore I Ching hexagrams** with nothing more than your browser and a couple of _d8_ (eight-sided dice).  
 Enter the two trigram rolls (lower and upper) and—if you wish—the six individual line rolls to see:
 
 * The primary hexagram, its glyph, binary/decimal value, and trigram makeup  
@@ -92,4 +92,4 @@ Because the logic and UI are decoupled, you can embed the **core** classes in ot
 
 The code is public domain (CC0). The webpage imports the Google Fonts font “Inter”, which is licensed under the OFL.
 
-The hexagram names, as well as the concept of hexagram stories and hexagram flowers, are due to Edward Hacker’s *I Ching Handbook*.
+The hexagram names, as well as the concept of hexagram stories and hexagram flowers, are due to Edward Hacker’s *I Ching Handbook*.
