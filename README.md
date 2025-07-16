@@ -1,92 +1,332 @@
-# I Ching Hexagram Calculator
-
-A tiny, self-contained web app (live [here](https://thiagovscoelho.github.io/hexagram_calculator/)) that lets you **cast and explore I Ching hexagrams** with nothing more than your browser and a couple of _d8_ (eight-sided dice).  
-Enter the two trigram rolls (lower and upper) and—if you wish—the six individual line rolls to see:
-
-* The primary hexagram, its glyph, binary/decimal value, and trigram makeup  
-* Per-line breakdown (yin/yang, role, correctness, holding-together, correspondence)  
-* The moving-line “target” hexagram (if any)  
-* A full suite of derived hexagrams: opposites, inverses, five kinds of nuclears, doubles/triples, etc.  
-* Rotation cycle, flower (antecedent & consequent petals), and 12-step story sequence  
-
-All output is rendered client-side; no network calls, builds, or dependencies required.
-
-## Quick-start
-
-```bash
-git clone https://github.com/thiagovscoelho/hexagram_calculator
-cd hexagram_calculator
-# No build step – just open the page
-````
-
-1. double-click **`index.html`** (or serve the folder with your favourite dev-server)
-2. roll two *d8* – the first for the **lower** trigram, the second for the **upper**
-3. optionally roll six more *d8* (bottom → top) to mark **moving lines**
-4. hit **Compute Hexagram** and dive into the results
-
-## Rolling the dice
-
-| Roll | 1           | 2              | 3           | 4          | 5             | 6          | 7          | 8            |
-| ---- | ----------- | -------------- | ----------- | ---------- | ------------- | ---------- | ---------- | ------------ |
-| Map  | **Earth** ☷ | **Mountain** ☶ | **Water** ☵ | **Wind** ☴ | **Thunder** ☳ | **Fire** ☲ | **Lake** ☱ | **Heaven** ☰ |
-
-* **Lower + Upper trigrams** → primary hexagram (64 possibilities)
-* **Per-line rolls**
-
-  * A **yang** line (solid, value `1`) **moves** when the roll is **1-3**
-  * A **yin** line (broken, value `0`) **moves** only on a roll of **8**
-  * Any other value leaves the line static
-
-If you leave every line roll blank the app assumes a fixed hexagram.
-
-## Features
-
-| Category              | Details                                                                                                                                     |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Hexagram core**     | Classes `Trigram` and `Hexagram` model the canonical 8 trigrams & 64 hexagrams with names, glyphs, binary, decimal, and King Wen numbering. |
-| **Moving-line logic** | Supports dynamic flipping of moving lines to compute the **target hexagram**.                                                               |
-| **Derived sets**      | Opposite / inverse, five nuclears (plus doubles & triples), rotation cycle, flower petals, and 12-step story sequence.                      |
-| **Per-line analysis** | Correct vs. incorrect, holding-together pairs, correspondence pairs, and role names (Common-man → Sage).                                    |
-| **Pure front-end**    | No frameworks, no build step – just vanilla HTML + CSS + ES2020.                                                                            |
-| **Unicode glyphs**    | Uses the standard trigrams (☰ … ☷) and hexagrams (䷀ … ䷿); falls back gracefully if a font is missing.                                       |
-
-## How it works
-
-1. **Core model (`iching-core.js`)**
-
-   * `Trigram` – stores binary/yin-yang pattern, glyph, name, helpers (opposite, inverse)
-   * `Hexagram` – built from two `Trigram`s; exposes rich methods:
-
-     * `lines`, `movingLines()`, `target()`
-     * `nuclear()`, `secondNuclear()`, … `flower()`, `story()`, `cycle()`
-     * plus correctness, holding-together, correspondence checks
-2. **UI layer (`app.js`)**
-
-   * Generates six optional draw inputs at load time
-   * Validates form, instantiates `Hexagram`, and calls `renderResults()`
-   * Renders headings, line diagram, analysis blocks, and several HTML tables
-3. **Styling** (`css/styles.css`)
-
-Because the logic and UI are decoupled, you can embed the **core** classes in other projects (Node/deno scripts, React apps, etc.) with no changes.
-
-## Development & customization
-
-* **Live reload**
-
-  ```bash
-  npx serve .
-  # or
-  npx live-server
-  ```
-* **Change the trigram order / naming** – edit the static `_data` map in `Trigram`.
-* **Add commentaries or translations** – extend the `_data` map in `Hexagram` with additional fields (e.g. `wilhelm` or `pinyin`) and surface them in `renderResults()`.
-* **Styling tweaks** – all colours and spacing live in `css/styles.css`. No CSS pre-processor needed.
-* **Unit tests** – (not included) but the pure-function nature of `iching-core.js` makes it easy to drop into any test runner of your choice.
+A lightweight, browser‑only I Ching workbench (live [here](https://thiagovscoelho.github.io/hexagram_calculator/)) that lets you roll **d8** dice to select trigrams, assemble a hexagram, and (optionally) determine moving lines using a probability rule tuned to the traditional **yarrow‑stalk** method as analyzed by Edward Hacker.
 
 ---
 
-## Credits & license
+## Contents
 
-The code is public domain (CC0). The webpage imports the Google Fonts font “Inter”, which is licensed under the OFL.
+* [Why this project?](#why-this-project)
+* [Quick start](#quick-start)
+* [Rolling the dice](#rolling-the-dice)
 
-The hexagram names, as well as the concept of hexagram stories and hexagram flowers, are due to Edward Hacker’s *I Ching Handbook*.
+  * [Step 1: Base hexagram via 2d8](#step-1-base-hexagram-via-2d8)
+  * [Step 2 (optional): Moving lines via 6d8](#step-2-optional-moving-lines-via-6d8)
+  * [Moving‑line probability rule (Hacker‑style)](#movingline-probability-rule-hackerstyle)
+  * [Worked example](#worked-example)
+* [Entering data in the UI](#entering-data-in-the-ui)
+* [Understanding the results display](#understanding-the-results-display)
+
+  * [Basic stats](#basic-stats)
+  * [Line diagram & roles](#line-diagram--roles)
+  * [Theme group (Hacker)](#theme-group-hacker)
+  * [Line relations: correctness, holding together, correspondence](#line-relations-correctness-holding-together-correspondence)
+  * [Derived hexagrams](#derived-hexagrams)
+  * [Rotation cycle](#rotation-cycle)
+  * [Flower (antecedents & consequents)](#flower-antecedents--consequents)
+  * [Story (twelve‑step narrative)](#story-twelvestep-narrative)
+* [URL parameters](#url-parameters)
+* [Developer notes & architecture](#developer-notes--architecture)
+
+  * [File layout](#file-layout)
+  * [Core data model API sketch](#core-data-model-api-sketch)
+* [Probability background](#probability-background)
+* [Accessibility, responsiveness, and mobile tips](#accessibility-responsiveness-and-mobile-tips)
+* [License](#license)
+* [Attribution & use of Hacker materials](#attribution--use-of-hacker-materials)
+* [Contributing](#contributing)
+* [Acknowledgments](#acknowledgments)
+
+---
+
+## Why this project?
+
+Many people who consult the *I Ching* prefer physical methods of generating hexagrams. The traditional **yarrow‑stalk** method yields an *asymmetric* probability distribution for changing ("moving") lines: some lines are more likely to change than others, and yang⇢yin changes are more common than yin⇢yang. Because the full yarrow procedure is slow and fiddly, the common substitute is the **three‑coin** toss—convenient, but it *does not* reproduce the yarrow probabilities.
+
+**hexagram\_calculator** offers a middle way: use familiar **octahedral (d8) dice** to quickly generate the same probability asymmetry Hacker computed for the yarrow method, while also enjoying the tactile satisfaction of rolling physical dice. Enter your rolls in a simple web form (or click *Random Hexagram* to experiment), and the app renders the hexagram, moving lines (if any), and a rich set of derived relationships inspired largely by Edward Hacker’s *I Ching Handbook*.
+
+The project is **100% client‑side**—no build step, no backend, works offline once loaded.
+
+---
+
+## Quick start
+
+1. **Clone or download** this repository.
+2. Open `index.html` in any modern browser (Chrome, Firefox, Safari, Edge, mobile OK).
+3. Roll **two d8s**: one gives the lower trigram index (1‑8), the other the upper trigram index (1‑8). Enter them.
+4. (Optional) Roll **six more d8s**, *bottom line to top line*, and enter them in the six draw boxes. Leave them blank if you don’t want to specify moving lines.
+5. Click **Compute Hexagram**. Your result appears below the form.
+6. To simply explore, click **Random Hexagram**—the app fills all fields with random 1‑8 values and displays the result.
+
+---
+
+## Rolling the dice
+
+### Step 1: Base hexagram via 2d8
+
+* Roll one d8 for the **lower trigram** (index 1‑8).
+* Roll one d8 for the **upper trigram** (index 1‑8).
+* The pair of trigrams determines one of the 64 hexagrams.
+
+**Which trigram is which number?** By default the project follows the binary eight‑trigram ordering (Earth ☷, Mountain ☶, Water ☵, Wind ☴, Thunder ☳, Fire ☲, Lake ☱, Heaven ☰). That is, we represent the trigram in binary (bottom → top convention) and add 1 to get its corresponding dice roll (since 3-bit numbers are 0–7, whereas d8 dice are usually labeled 1–8).
+
+Although this does not match the textual sequence from the Eighth Wing (☰ Heaven, ☷ Earth, ☳ Thunder, ☴ Wind, ☵ Water, ☲ Fire, ☶ Mountain, ☱ Lake), it is more intuitive because higher dice values are more yang. The binary order is not wholly untraditional, since the Earlier Heaven circular arrangement is closely related to the binary order (see Hacker’s *Handbook*, p. 37), and after all the binary order of hexagrams is attributed to Fu Hsi, who is traditionally held to be an ancient king even earlier than King Wen, although modern scholarship considers him legendary and traces the binary order no further back than the Sung Dynasty (960–1279 A.D.). (Hacker, *Handbook*, p. 104)
+
+The precise mapping is encoded in `js/iching-core.js` and is echoed back to you in the results panel whenever you compute a hexagram, so you can double‑check your rolls there. If you customize the mapping, the UI will faithfully report your new order.
+
+### Step 2 (optional): Moving lines via 6d8
+
+If you want to model kinetic (changing) lines—roughly matching the yarrow‑stalk probabilities—roll **six** d8s, one for each line **starting at the bottom (line 1) and moving upward to the top (line 6)**. Enter each roll in the corresponding draw box.
+
+> **Important:** Either leave *all* six boxes blank (no moving lines) **or** fill in *all* six with integers 1‑8. Partial entry is rejected to prevent accidental misreads.
+
+### Moving‑line probability rule (Hacker‑style)
+
+Each line in the base hexagram is already yin (broken) or yang (solid). To decide whether that line *moves* (flips) when you apply your 6d8 draws, we use this rule:
+
+| Current line | d8 draw  | Result              | P(move)     |
+| ------------ | -------- | ------------------- | ----------- |
+| **Yang**     | 1‑3      | *Moving* (yang⇢yin) | 3/8 = 37.5% |
+| **Yin**      | 8        | *Moving* (yin⇢yang) | 1/8 = 12.5% |
+| otherwise    | *Static* | —                   |             |
+
+Thus **yang lines are three times as likely to change** (down to yin) as yin lines are to change (up to yang), reflecting the asymmetry observed in analyses of the yarrow‑stalk method. This asymmetry also motivates the labeling of *antecedents* vs *consequents* in the app’s *flower* view (see below).
+
+### Worked example
+
+Suppose you rolled:
+
+* Lower trigram roll: **5** (Wind)
+* Upper trigram roll: **2** (Lake)
+* 6d8 draws bottom→top: `2, 8, 5, 1, 3, 7`
+
+Enter these and click **Compute Hexagram**. Internally the app will:
+
+1. Build the base hexagram from (lower=5, upper=2).
+2. For each line *i* (1=bottom):
+
+   * Look at whether the base line is yin/yang.
+   * Compare the corresponding draw.
+   * Flag as **moving** if it meets the rule above.
+3. Flip every moving line to produce the **target** (changed) hexagram, shown in the *Derived Hexagrams* table in red.
+
+---
+
+## Entering data in the UI
+
+The form at the top of the page has:
+
+* **Lower trigram (1‑8)** and **Upper trigram (1‑8)** numeric fields (required).
+* **Optional draws** fieldset containing six number boxes (generated at runtime) for the 6d8 line draws, labeled *bottom → top* in the legend to remind you of input order.
+* **Compute Hexagram** button.
+* **Random Hexagram** button that fills all eight numeric fields with random integers in `[1,8]` and immediately lets you compute.
+
+Validation rules:
+
+* Trigram values must be integers 1‑8.
+* Draw boxes must be *all blank* or *exactly six valid integers* 1‑8.
+
+---
+
+## Understanding the results display
+
+After a successful submission, the results panel renders the following sections.
+
+### Basic stats
+
+* **Heading**: `Hexagram N: Name` plus the Unicode hexagram glyph.
+* **Binary**: Six‑bit binary string (`000111`, etc.) with a dash after the first three bits to highlight lower/upper trigrams.
+* **Decimal**: The integer value of the 6‑bit binary (0‑63) used internally.
+* **Upper / Lower trigram read‑out**: Sequence number, glyph, binary, decimal, and name for each constituent trigram.
+
+### Line diagram & roles
+
+An SVG diagram shows each of the six lines (top displayed first).
+
+* **Solid bar** = yang; **broken bar** = yin.
+* Moving lines (if draws were supplied and rule matched) are highlighted in **red** and annotated with an arrow to their post‑change strength (Strong/Weak).
+* Lines are numbered **1 (bottom) → 6 (top)**. Role labels ("Common‑man", "The Ruler", etc.) appear or are suppressed depending on the `roles` URL parameter (see below). A *big* mode appends Earth/Man/Heaven domains.
+
+### Theme group (Hacker)
+
+Each hexagram is sorted into one of Hacker’s eight thematic clusters (e.g., *Groups*, *Big in Power*, *Proper Conduct*). The mapping is given in page 68 of Hacker’s *Handbook* and defended in pages 69–72. There are exactly eight hexagrams per cluster.
+
+### Line relations: correctness, holding together, correspondence
+
+These per‑line diagnostics are classic interpretive aids:
+
+* **Correctness**: Whether a line’s yin/yang quality matches its *correct* position (traditionally, odd‑numbered lines favor yang, even‑numbered favor yin, though the full rules are encoded in the core library). Listed as *Correct* vs *Incorrect* lines.
+* **Holding together**: Certain adjacent or paired lines have affinity relationships in traditional commentary; the app reports whether each pair *holds together*.
+* **Correspondence**: Non‑adjacent yin/yang complements that traditionally resonate (e.g., line 1 with line 4, 2 with 5, 3 with 6). Reported pairwise.
+
+### Derived hexagrams
+
+Displayed in a table beneath the line information. For the computed base hexagram the app lists:
+
+* **Target** (if moving lines were provided): the post‑change hexagram, styled in red.
+* **Opposite**: Flip all six lines (yang↔yin).
+* **Inverse**: Turn the hexagram upside‑down (swap top↔bottom; read in reverse order).
+* **Nuclear** and iterative **Second/Third/Fourth/Fifth Nuclear**: successive extractions of inner trigrams to form a new hexagram (see chapter 6 of Hacker’s *Handbook*, generally).
+* **Double** and **Triple** variants: applying the same nuclear operation multiple times for curiosity and pattern study.
+
+### Cycle
+
+Internally also called a *rotation cycle* or *line rotation cycle*, this is made by repeatedly moving the **top line to the bottom**, shifting all others up, until the starting pattern reappears. Lists each intermediate hexagram; step 1 is the starting figure.
+
+### Flower (antecedents & consequents)
+
+Hacker’s evocative *hexagram flower* imagines your chosen hexagram at the center of six petals—each petal obtained by **flipping exactly one line**.
+
+Because yang→yin changes are **much more probable** than yin→yang under the dice/yarrow rule, the app labels the petals directionally:
+
+* **Antecedent**: The petal hexagram has **yang where yours has yin**. Statistically, that petal is more likely to *precede* yours (your hexagram could arise if that line changed to yin).
+* **Consequent**: The petal hexagram has **yin where yours has yang**. Statistically more likely to *follow* from yours when that line changes.
+
+Petals are sorted top‑line (6) to bottom‑line (1) for quick scanning.
+
+### Story (twelve‑step narrative)
+
+A *hexagram story* walks the figure through a complete polarity reversal and back again:
+
+1. Starting hexagram.
+2. Flip one line; record the new hexagram.
+3. Continue flipping additional lines one at a time until you reach the full **opposite**.
+4. Then flip back, stepwise, to return to the original.
+
+The resulting sequence (original + 12 interior transitions + return) can be read imaginatively as a narrative arc. The exact flip order follows the implementation in `iching-core.js` (generally proceeding linewise but see code comments). Steps are enumerated in the results table.
+
+---
+
+## URL parameters
+
+You can tweak the interface by adding simple query parameters to the page URL:
+
+| Param   | Values           | Effect                                                          |
+| ------- | ---------------- | --------------------------------------------------------------- |
+| `roles` | `on` *(default)* | Show standard line role titles (Common‑man, Great Official, …). |
+|         | `off`            | Suppress role labels (useful on very small screens).            |
+|         | `big`            | Expand roles to include Earth / Man / Heaven domains.           |
+
+Example usage (assuming you are viewing the file locally):
+
+```
+index.html?roles=big
+```
+
+---
+
+## Developer notes & architecture
+
+### File layout
+
+```
+hexagram_calculator/
+├─ index.html              # Entry point / markup skeleton
+├─ css/
+│   └─ styles.css          # Layout, typography, color; red highlight for moving lines
+├─ js/
+│   ├─ iching-core.js      # Data & logic: Trigram & Hexagram classes, lookups, operations
+│   └─ app.js              # DOM / event glue; builds inputs; renders results
+└─ LICENSE                 # Public domain dedication
+```
+
+No build system is required. Everything runs in the browser as ES5‑ish vanilla JS.
+
+### Core data model API sketch
+
+Below is an *informal* sketch of the methods used by the UI. Inspect `js/iching-core.js` for authoritative definitions.
+
+```js
+// Construct a trigram by sequence number 1‑8
+const t = new Trigram(1);  // e.g., Heaven
+console.log(t.binaryRepresentation, t.name, t.glyph, t.decimalBinaryValue);
+
+// Build a hexagram from lower & upper trigrams. Optional draws array length 6.
+const h = new Hexagram(new Trigram(1), new Trigram(8), [2,8,5,1,3,7]);
+
+console.log(h.textualNumber, h.name, h.glyph);
+console.log('Lines (bottom→top):', h.lines);          // [0|1] per line
+console.log('Moving lines:', h.movingLines);           // [bool]
+console.log('Target hexagram:', h.target());
+
+// Relationships
+h.opposite();
+h.inverse();
+h.nuclear();           // and secondNuclear(), thirdNuclear(), ...
+h.correctLines();      // -> [line numbers]
+h.incorrectLines();
+h.holdingPairs();      // -> [{a:1,b:4,holds:true}, ...]
+h.correspondencePairs();
+h.cycle();             // -> array of hexagrams (rotation cycle)
+h.flower();            // -> {antecedents:[...], consequents:[...]}
+h.story();             // -> ordered array of story hexagrams
+```
+
+## Probability background
+
+The 6d8 moving‑line rule in this project was chosen to **approximate the line‑change asymmetry of the traditional yarrow‑stalk method** as tabulated by Edward Hacker. In broad strokes:
+
+* When generating a line by yarrow stalks you obtain one of four numeric outcomes (often mapped to 6, 7, 8, 9). Two of these represent *moving* lines; the other two are *static*.
+* The relative frequencies are *not* even; in particular, the event corresponding to yang→yin occurs markedly more often than yin→yang.
+* By *conditioning* on the already‑known state of each line in your base hexagram (you rolled the trigrams first), you can emulate this asymmetry with a **single d8 draw per line**.
+
+The resulting conditional probabilities implemented here are:
+
+* **P(move | yang) = 3/8 = 37.5%** (draw 1‑3 ⇒ yang flips to yin).
+* **P(move | yin) = 1/8 = 12.5%** (draw 8 ⇒ yin flips to yang).
+
+These give a **3:1 ratio** favoring yang→yin transitions, echoing the traditional method’s bias. Exact equivalence is not claimed; the rule is intentionally *simple, easy to remember at the table,* and directionally faithful to Hacker’s analysis. If you prefer a different mapping, it is straightforward to modify the conditional checks in `iching-core.js`.
+
+---
+
+## Accessibility, responsiveness, and mobile tips
+
+* Layout is responsive; tested down to narrow phone widths.
+* Role labels can crowd the diagram on small screens. Use `?roles=off` to hide, or `?roles=big` if you actually want *more* mnemonic context (Earth/Man/Heaven suffixes).
+* All numeric inputs are plain `<input type="number">` elements—mobile keyboards show numeric pads.
+* High‑contrast red is used to call out moving lines; adjust in CSS if you need alternate color profiles.
+
+---
+
+## License
+
+All **original code**, the **d8 probability method**, and *this documentation* are released into the **public domain** via the [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/) dedication. In jurisdictions where CC0 cannot waive all rights, you are granted a perpetual, royalty‑free, irrevocable license to use, modify, redistribute, and relicense the work for any purpose without attribution.
+
+To make reuse easy, include (or leave in place) the `LICENSE` file in redistributions.
+
+---
+
+## Attribution & use of Hacker materials
+
+This project draws heavily on Edward A. Hacker’s *I Ching Handbook* for:
+
+* Hexagram **names** (Hacker’s comparative, cross‑translation choices).
+* **Theme groups**.
+* Conceptual framing for **hexagram flower** and **hexagram story**.
+* Terminology such as **opposite** (full yin/yang flip) and **inverse** (upside‑down / reversed order).
+
+Only *short identifying labels* derived from Hacker are included in the codebase; no copyrighted translation passages are distributed here. Please consult and support the original work for authoritative commentary and scholarship.
+
+---
+
+## Contributing
+
+Pull requests welcome! Ideas:
+
+* Additional probability schemes (coin method, 16‑token draw, true yarrow simulator).
+* Option for alternate trigram orderings / mapping tables.
+* Translations in other languages.
+* Accessibility improvements and dark‑mode themes.
+* Automated testing of relationship logic.
+
+When contributing, please do **not** include copyrighted textual translations without permission.
+
+---
+
+## Acknowledgments
+
+* **Edward A. Hacker** for decades of meticulous comparative scholarship on the *I Ching*, whose ideas inspired many of this app’s features.
+* The maintainers of the Unicode standard for providing glyphs for trigrams and hexagrams, making clean text rendering possible without images.
+* Everyone who uses Platonic solids for divination, which is to say, rolls RPG dice.
+
+---
+
+**Enjoy exploring the *I Ching* with dice!** If you discover a bug or have an idea, open an issue or start a discussion.
