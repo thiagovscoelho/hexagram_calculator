@@ -41,7 +41,7 @@ A lightweight, browser‑only I Ching workbench (live [here](https://thiagovsco
 
 Many people who consult the *I Ching* prefer physical methods of generating hexagrams. The traditional **yarrow‑stalk** method yields an *asymmetric* probability distribution for changing ("moving") lines: some lines are more likely to change than others, and yang⇢yin changes are more common than yin⇢yang. Because the full yarrow procedure is slow and fiddly, the common substitute is the **three‑coin** toss—convenient, but it *does not* reproduce the yarrow probabilities.
 
-**hexagram\_calculator** offers a middle way: use familiar **octahedral (d8) dice** to quickly generate the same probability asymmetry Hacker computed for the yarrow method, while also enjoying the tactile satisfaction of rolling physical dice. Enter your rolls in a simple web form (or click *Random Hexagram* to experiment), and the app renders the hexagram, moving lines (if any), and a rich set of derived relationships inspired largely by Edward Hacker’s *I Ching Handbook*.
+**I Ching Hexagram Calculator** offers a middle way: use familiar **octahedral (d8) dice** to quickly generate the same probability asymmetry Hacker computed for the yarrow method, while also enjoying the tactile satisfaction of rolling physical dice. Enter your rolls in a simple web form (or click *Random Hexagram* to experiment), and the app renders the hexagram, moving lines (if any), and a rich set of derived relationships inspired largely by Edward Hacker’s *I Ching Handbook*.
 
 The project is **100% client‑side**—no build step, no backend, works offline once loaded.
 
@@ -74,7 +74,7 @@ The precise mapping is encoded in `js/iching-core.js` and is echoed back to you 
 
 ### Step 2 (optional): Moving lines via 6d8
 
-If you want to model kinetic (changing) lines—roughly matching the yarrow‑stalk probabilities—roll **six** d8s, one for each line **starting at the bottom (line 1) and moving upward to the top (line 6)**. Enter each roll in the corresponding draw box.
+If you want to model kinetic (changing or unchanging) lines—roughly matching the yarrow‑stalk probabilities—roll **six** d8s, one for each line **starting at the bottom (line 1) and moving upward to the top (line 6)**. Enter each roll in the corresponding draw box.
 
 > **Important:** Either leave *all* six boxes blank (no moving lines) **or** fill in *all* six with integers 1‑8. Partial entry is rejected to prevent accidental misreads.
 
@@ -133,7 +133,7 @@ After a successful submission, the results panel renders the following sections.
 ### Basic stats
 
 - **Heading**: `Hexagram N: Name` plus the Unicode hexagram glyph.
-- **Binary**: Six‑bit binary string (`000111`, etc.) with a dash after the first three bits to highlight lower/upper trigrams.
+- **Binary**: Six‑bit binary string (`000111`, etc., where left-to-right ↔ lower-to-upper) with a dash after the first three bits to enhance readability and highlight lower/upper trigrams.
 - **Decimal**: The integer value of the 6‑bit binary (0‑63) used internally.
 - **Upper / Lower trigram read‑out**: Sequence number, glyph, binary, decimal, and name for each constituent trigram.
 
@@ -151,7 +151,7 @@ Each hexagram is sorted into one of Hacker’s eight thematic clusters (e.g., *G
 
 ### Line relations: correctness, holding together, correspondence
 
-These per‑line diagnostics are classic interpretive aids:
+These per‑line diagnostics are classic interpretive aids (Hacker, *Handbook*, pp. 13–14):
 
 - **Correctness**: A line is correct if it is yang (1) in position 1, 3, or 5 or if it is yin (0) in position 2, 4, or 6. All lines in 63 ䷾ 101-010 *Already Across the River* are correct; all lines in 64 ䷿ 010-101 *Not Yet Across the River* are incorrect.
 - **Holding together**: This is a relation which is only defined between successive lines (1 and 2, or 2 and 3, or 3 and 4, or 4 and 5, or 5 and 6). Successive lines are said to hold together if they are opposites, i.e., one of them is yin (0) and the other yang (1).
@@ -169,11 +169,11 @@ Displayed in a table beneath the line information. For the computed base hexagra
 
 ### Cycle
 
-Internally also called a *rotation cycle* or *line rotation cycle*, this is made by repeatedly moving the **top line to the bottom**, shifting all others up, until the starting pattern reappears. Lists each intermediate hexagram; step 1 is the starting figure.
+Internally also called a *rotation cycle* or *line rotation cycle*, this is made by repeatedly moving the **top line to the bottom**, shifting all others up, until the starting pattern reappears. (Hacker, *Handbook*, p. 93) Lists each intermediate hexagram; step 1 is the starting figure.
 
 ### Flower (antecedents & consequents)
 
-Hacker’s evocative *hexagram flower* imagines your chosen hexagram at the center of six petals—each petal obtained by **flipping exactly one line**.
+Hacker’s evocative *hexagram flower* imagines your chosen hexagram at the center of six petals—each petal obtained by **flipping exactly one line**. (*Handbook*, pp. 94–96)
 
 Because yang→yin changes are **much more probable** than yin→yang under the dice/yarrow rule, the petals are labeled directionally:
 
@@ -191,7 +191,7 @@ A *hexagram story* walks the figure through a complete polarity reversal and bac
 3. Continue flipping additional lines one at a time until you reach the full **opposite**.
 4. Then flip back, stepwise, to return to the original.
 
-The resulting sequence (original + 12 interior transitions + return) can be read imaginatively as a narrative arc. The exact flip order follows the implementation in `iching-core.js` (generally proceeding linewise but see code comments). Steps are enumerated in the results table.
+The resulting sequence (original + 12 interior transitions + return) can be read imaginatively as a narrative arc. (Hacker, *Handbook*, pp. 96–98) The exact flip order follows the implementation in `iching-core.js` (generally proceeding linewise but see code comments). Steps are enumerated in the results table.
 
 ---
 
@@ -262,7 +262,7 @@ h.story();             // -> ordered array of story hexagrams
 
 ## Probability background
 
-The 6d8 moving‑line rule in this project was chosen to **exactly match the line‑change probability distribution of the traditional yarrow‑stalk method** as computed and tabulated by Edward Hacker. In broad strokes:
+The 6d8 moving‑line rule in this project was chosen to **exactly match the line‑change probability distribution of the traditional yarrow‑stalk method** as computed and tabulated by Edward Hacker. (*Handbook*, p. 138) In broad strokes:
 
 - When generating a line by yarrow stalks you obtain one of four numeric outcomes (often mapped to 6, 7, 8, 9). Two of these represent *moving* lines; the other two are *static*.
 - The relative frequencies are *not* even; in particular, the event corresponding to yang→yin occurs markedly more often than yin→yang.
