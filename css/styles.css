@@ -245,8 +245,8 @@ td:last-child {
 .lines-diagram{
   display:grid;
   grid-template-columns:
-      minmax(50px, 1fr)   /* col-1: bar  (priority-1 to shrink)  */
-      max-content;        /* col-2: text (only if still needed)  */
+      minmax(50px, max-content)   /* col-1: bar  (priority-1 to shrink)  */
+      1fr;        /* col-2: text (only if still needed)  */
   column-gap:0.75rem;
   row-gap:0.6rem;
 }
