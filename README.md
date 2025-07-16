@@ -22,7 +22,7 @@ A lightweight, browser‑only I Ching workbench (live [here](https://thiagovsco
   * [Theme group (Hacker)](#theme-group-hacker)
   * [Line relations: correctness, holding together, correspondence](#line-relations-correctness-holding-together-correspondence)
   * [Derived hexagrams](#derived-hexagrams)
-  * [Rotation cycle](#rotation-cycle)
+  * [Cycle](#cycle)
   * [Flower (antecedents & consequents)](#flower-antecedents--consequents)
   * [Story (twelve‑step narrative)](#story-twelvestep-narrative)
 - [URL parameters](#url-parameters)
