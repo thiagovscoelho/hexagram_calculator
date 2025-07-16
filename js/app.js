@@ -313,25 +313,46 @@ function renderResults(hex, draws) {
 
   targetDiv.appendChild(cycTable);
   
-  // ─── flower (antecedents & consequents) ─────────────────────────────────────
+  // ─── flower (antecedents & consequents) ──────────────────────────
   const { antecedents, consequents } = hex.flower();
 
-  // header
+  /* 1.  helper → which single line differs?  1 = bottom … 6 = top */
+  function changedLine(orig, variant) {
+    const a = orig.lines,
+          b = variant.lines;
+    for (let i = 0; i < 6; i++) if (a[i] !== b[i]) return i + 1;
+  }
+
+  /* 2.  tag every petal with its line # and kind,
+          then sort so line 6 comes first, line 1 last  */
+  const petals = [
+    ...antecedents.map(h => ({
+        kind: 'Antecedent',
+        hex:  h,
+        line: changedLine(hex, h)          // 1…6
+    })),
+    ...consequents.map(h => ({
+        kind: 'Consequent',
+        hex:  h,
+        line: changedLine(hex, h)
+    }))
+  ].sort((p, q) => q.line - p.line);       // descending ⇒ 6 → 1
+
+  /* 3.  build the table */
   const flowerHeader = document.createElement('h3');
   flowerHeader.textContent = 'Flower';
   flowerHeader.style.marginTop = '1.4rem';
   targetDiv.appendChild(flowerHeader);
 
-  // build flower table
   const flTable = document.createElement('table');
   flTable.style.borderCollapse = 'collapse';
   flTable.style.marginTop = '0.5rem';
 
-  // header row
+  /* header row (unchanged) */
   const flHead = document.createElement('tr');
   ['Type', 'No.', 'Name', 'Glyph'].forEach(text => {
     const th = document.createElement('th');
-    th.textContent = text;
+    th.textContent  = text;
     th.style.padding = '4px 8px';
     th.style.borderBottom = '1px solid #999';
     th.style.textAlign = 'left';
@@ -339,25 +360,23 @@ function renderResults(hex, draws) {
   });
   flTable.appendChild(flHead);
 
-  // helper to add rows
-  function addPetalRows(list, kind) {
-    list.forEach(h => {
-      const tr = document.createElement('tr');
-      [kind, h.textualNumber, h.name, h.glyph].forEach((val, col) => {
-        const td = document.createElement('td');
-        td.textContent = val;
-        td.style.padding = '3px 8px';
-        if (col === 3) td.style.fontSize = '1.3rem';
-        tr.appendChild(td);
-      });
-      flTable.appendChild(tr);
+  /* rows in the new top-to-bottom order */
+  petals.forEach(({ kind, hex }) => {
+    const tr = document.createElement('tr');
+    [kind, hex.textualNumber, hex.name, hex.glyph].forEach((val, col) => {
+      const td = document.createElement('td');
+      td.textContent = val;
+      td.style.padding = '3px 8px';
+      if (col === 3) td.style.fontSize = '1.3rem';
+      tr.appendChild(td);
     });
-  }
-
-  addPetalRows(antecedents, 'Antecedent');
-  addPetalRows(consequents, 'Consequent');
+    flTable.appendChild(tr);
+  });
 
   targetDiv.appendChild(flTable);
+  /* ─── end flower block ─────────────────────────────────────────── */
+
+
     
   // ─── story (narrative sequence) ────────────────────────────────────────────
   const storyArr = hex.story();
