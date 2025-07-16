@@ -117,7 +117,7 @@ legend {
   font-weight: 600;
   font-family: var(--font);
   white-space: normal;          /* allow wrapping                    */
-  overflow-wrap: break-word;    /* break *words* only if unavoidable */
+  overflow-wrap: normal;    /* break *words* only if unavoidable */
   max-width: 100%;              /* never wider than its field-set    */
 }
 
@@ -297,17 +297,6 @@ td:last-child {
     grid-template-columns: 1fr; /* stack everything                   */
     gap: 1rem;
   }
-
-  /* every direct child spans that single column */
-  #hexForm label,
-  #hexForm fieldset,
-  #hexForm button[type="submit"] { grid-column: 1 / -1; }
-
-  /* button fills the track exactly – no left/right “overshoot” */
-  #hexForm button[type="submit"] {
-    justify-self: stretch;
-    width: auto;
-  }
 }
 
 
@@ -321,18 +310,19 @@ td:last-child {
     padding: 1rem 1rem 1.25rem;         /* slimmer interior padding       */
     gap: 1rem;
   }
+}
 
-  /* everything spans that single track */
-  #hexForm label,
-  #hexForm fieldset,
-  #hexForm button[type="submit"] { grid-column: 1 / -1; }
+/* every direct child spans that single column */
+#hexForm label,
+#hexForm fieldset,
+#hexForm button[type="submit"], #hexForm .btn-random { grid-column: 1 / -1; }
 
-  /* button fills the track exactly – no right-edge “poke” */
-  #hexForm button[type="submit"] {
+/* button fills the track exactly – no left/right “overshoot” */
+#hexForm button[type="submit"], #hexForm .btn-random {
     justify-self: stretch;
     width: auto;
-  }
 }
+
 
 /* when the container (or viewport) is too narrow for 6 × 3.2 rem
    switch cleanly to 3 columns → 3 × 2 layout                    */
@@ -359,3 +349,21 @@ td:last-child {
 @media (max-width: 520px) {
   #drawInputs { grid-template-columns: repeat(3, 1fr); }
 }
+
+
+/* === white “Random Hexagram” button ============================= */
+.btn-random {
+  grid-column: span 2;          /* stay aligned with the red button   */
+  justify-self: start;
+  background: #fff;
+  color: var(--clr-accent);     /* red text                           */
+  border: 2px solid var(--clr-accent);
+  font-weight: 600;
+  padding: 0.55rem 1.3rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+
+.btn-random:hover   { background: #fbeaea; transform: translateY(-2px); }
+.btn-random:active  { background: #fff;    transform: translateY(0); }

@@ -14,6 +14,23 @@
   }
 })();
 
+/* ---- “Random Hexagram” helper ---------------------------------- */
+(function addRandomButtonLogic () {
+  const randBtn = document.getElementById('randomBtn');
+  const randD8  = () => Math.floor(Math.random() * 8) + 1;   // [1‥8]
+
+  randBtn.addEventListener('click', () => {
+    // trigram inputs
+    document.getElementById('lower').value = randD8();
+    document.getElementById('upper').value = randD8();
+
+    // six moving-line draws
+    document.querySelectorAll('#drawInputs input').forEach(inp => {
+      inp.value = randD8();
+    });
+  });
+})();
+
 // handle form submission
 const form = document.getElementById('hexForm');
 form.addEventListener('submit', (e) => {
