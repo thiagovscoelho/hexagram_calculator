@@ -170,6 +170,8 @@ button[type="submit"]:active {
   padding-bottom: 4rem;
 }
 
+#results p.theme-group { margin-top: 0.75rem; }
+
 .glyph {
   font-size: 2.6rem;
   line-height: 1;

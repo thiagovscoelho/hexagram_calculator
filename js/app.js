@@ -31,6 +31,26 @@
   });
 })();
 
+/* ---- Theme group lookup --------------------------------------- */
+const THEME_GROUP_MAP = (() => {
+  const m = new Map();
+  const add = (name, arr) => arr.forEach(n => m.set(n, name));
+  add('Groups',                    [7, 8, 13, 31, 32, 37, 45, 48]);
+  add('Relationships',             [3, 4, 6, 21, 38, 49, 54, 56]);
+  add('Small Advancing',           [10, 18, 23, 33, 36, 44, 47, 62]);
+  add('Big Advancing',             [24, 35, 40, 42, 43, 46, 51, 53]);
+  add('Obstacles & Limitations',   [5, 9, 26, 27, 29, 39, 41, 60]);
+  add('Big in Power',              [14, 16, 17, 19, 20, 28, 34, 55]);
+  add('Proper Conduct',            [15, 25, 30, 52, 57, 58, 59, 61]);
+  add('Cosmic & Social',           [1, 2, 11, 12, 22, 50, 63, 64]);
+  return m;
+})();
+
+function getThemeGroup(hex) {
+  const n = parseInt(hex.textualNumber, 10);
+  return THEME_GROUP_MAP.get(n) || 'Unknown';
+}
+
 // handle form submission
 const form = document.getElementById('hexForm');
 form.addEventListener('submit', (e) => {
@@ -166,6 +186,11 @@ function renderResults(hex, draws) {
 
   targetDiv.appendChild(diagram);
 
+  /* ----- Theme group line (beneath diagram; styled like basic stats) ----- */
+  const pTheme = document.createElement('p');
+  pTheme.innerHTML = `<strong>Theme group:</strong> ${getThemeGroup(hex)}`;
+  targetDiv.appendChild(pTheme);
+  pTheme.className = 'theme-group';
 
   // ─── Line information section ───────────────────────────────────────────
   const infoDiv = document.createElement('div');
