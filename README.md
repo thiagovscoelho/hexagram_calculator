@@ -24,9 +24,6 @@ cd hexagram_calculator
 3. optionally roll six more *d8* (bottom → top) to mark **moving lines**
 4. hit **Compute Hexagram** and dive into the results
 
-> **Tip**
-> On touch devices you can ignore the dice and simply type 1-8 in each box.
-
 ## Rolling the dice
 
 | Roll | 1           | 2              | 3           | 4          | 5             | 6          | 7          | 8            |
