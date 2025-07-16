@@ -1,3 +1,5 @@
+# I Ching Hexagram Calculator
+
 A lightweight, browser‑only I Ching workbench (live [here](https://thiagovscoelho.github.io/hexagram_calculator/)) that lets you roll **d8** dice to select trigrams, assemble a hexagram, and (optionally) determine moving lines using a probability rule tuned to the traditional **yarrow‑stalk** method as analyzed by Edward Hacker.
 
 ---
