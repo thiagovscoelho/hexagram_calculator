@@ -248,6 +248,7 @@ td:last-child {
 
 .line-row {
   display: flex;
+  justify-content: flex-start;   
   align-items: center;
   gap: 0.75rem;
 }
@@ -258,7 +259,7 @@ td:last-child {
   • never grows beyond 260 px → avoids huge empty gaps              */
 .line-svg {
   flex: 0 1 260px;            /* flex-basis 260, allow shrink, no grow */
-  width: 100%;                /* fill its flex-basis                    */
+  width: auto;                /* fill its flex-basis                    */
   min-width: 90px;            /* stay visible on very narrow screens    */
   max-width: 260px;
   height: 12px;               /* keep existing height                   */
