@@ -51,6 +51,41 @@ function getThemeGroup(hex) {
   return THEME_GROUP_MAP.get(n) || 'Unknown';
 }
 
+/* ===== URL param: roles =========================================
+   Accepts:
+     ?roles=off  → omit per-line role titles
+     ?roles=big  → append (Earth/Man/Heaven)
+     (default)   → current / normal roles
+----------------------------------------------------------------- */
+const _params    = new URLSearchParams(window.location.search);
+const ROLES_MODE = (_params.get('roles') || 'on').toLowerCase(); // 'on'|'off'|'big'
+
+const ROLES_BASE = [
+  'Common-man',          // line 1  (bottom)
+  'The Great Official',  // line 2
+  'Transitional',        // line 3
+  'Minister/Advisor',    // line 4
+  'The Ruler',           // line 5
+  'The Sage'             // line 6  (top)
+];
+
+const ROLES_BIG = [
+  'Common-man (Earth)',          // line 1
+  'The Great Official (Earth)',  // line 2
+  'Transitional (Man)',          // line 3
+  'Minister/Advisor (Man)',      // line 4
+  'The Ruler (Heaven)',          // line 5
+  'The Sage (Heaven)'            // line 6
+];
+
+function roleLabelForLine(idxZero) {
+  switch (ROLES_MODE) {
+    case 'off': return '';                      // no role text
+    case 'big': return ROLES_BIG[idxZero];
+    default:    return ROLES_BASE[idxZero];     // normal
+  }
+}
+
 // handle form submission
 const form = document.getElementById('hexForm');
 form.addEventListener('submit', (e) => {
@@ -113,17 +148,7 @@ function renderResults(hex, draws) {
 
   targetDiv.appendChild(pTris);
 
-  // ─── line diagram + per-line commentary ──────────────────────────────────
-  const roles   = [
-    'Common-man',          // line 1  (bottom)
-    'The Great Official',  // line 2
-    'Transitional',        // line 3
-    'Minister/Advisor',    // line 4
-    'The Ruler',           // line 5
-    'The Sage'             // line 6  (top)
-  ];
-
-  // ─── graphical line diagram + commentary ─────────────────────────────────
+  // ─── graphical line diagram + per-line commentary ───────────────────────
   const diagram = document.createElement('div');
   diagram.className = 'lines-diagram';
 
@@ -174,9 +199,12 @@ function renderResults(hex, draws) {
     }
 
     /* text info */
+    const roleLbl = roleLabelForLine(i);   // '' if roles=off
+    let label = `Line ${i + 1}`;
+    if (roleLbl) label += ` – ${roleLbl}`;
     const txt = document.createElement('span');
     txt.className = 'line-info';
-    txt.textContent = `Line ${i + 1} – ${roles[i]} – ${nowStr}${arrow}`;
+    txt.textContent = `${label} – ${nowStr}${arrow}`;
 
     /* put SVG + text into row, add to diagram */
     row.appendChild(svg);
