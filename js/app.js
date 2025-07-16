@@ -110,6 +110,7 @@ function renderResults(hex, draws) {
     const svg = document.createElementNS(svgNS, 'svg');
     svg.setAttribute('class', 'line-svg');
     svg.setAttribute('viewBox', '0 0 120 12');
+    svg.setAttribute('preserveAspectRatio', 'xMinYMid meet'); // ⬅️ pin left
 
     if (bit === 1) {                         // yang ———
       const rect = document.createElementNS(svgNS, 'rect');
