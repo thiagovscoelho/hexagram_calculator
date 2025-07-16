@@ -261,7 +261,7 @@ function renderResults(hex, draws) {
   const cycleArr = hex.cycle();     // [this, …]
 
   const cycHeading = document.createElement('h3');
-  cycHeading.textContent = 'Rotation Cycle';
+  cycHeading.textContent = 'Cycle'; // Rotation Cycle
   cycHeading.style.marginTop = '1.8rem';
   targetDiv.appendChild(cycHeading);
 
@@ -284,9 +284,6 @@ function renderResults(hex, draws) {
   // rows
   cycleArr.forEach((h, idx) => {
     const tr = document.createElement('tr');
-    if (idx === 0) {           // the starting hexagram
-      tr.style.fontWeight = '700';
-    }
     [idx + 1, h.textualNumber, h.name, h.glyph].forEach((val, col) => {
       const td = document.createElement('td');
       td.textContent = val;
