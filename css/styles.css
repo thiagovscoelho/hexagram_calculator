@@ -242,9 +242,11 @@ td:last-child {
 }
 
 /* === Graphical line diagram ============================================== */
-.lines-diagram {
+.lines-diagram{
   display:grid;
-  grid-template-columns:minmax(90px,260px) auto; /* 90 – 260 px bar, then label */
+  grid-template-columns:
+      minmax(50px, 1fr)   /* col-1: bar  (priority-1 to shrink)  */
+      max-content;        /* col-2: text (only if still needed)  */
   column-gap:0.75rem;
   row-gap:0.6rem;
 }
@@ -254,10 +256,9 @@ td:last-child {
 }
 
 .line-svg{
-  width:100%;               /* stretches to the track width            */
-  height:12px;              /* never gets shorter                      */
-  max-width:260px;
-  min-width:90px;
+  width:100%;
+  max-width:260px;        /* upper cap so it never grows absurdly wide */
+  height:12px;            /* height stays rock-solid                   */
 }
 
 .line-svg[viewBox]{
@@ -274,11 +275,10 @@ td:last-child {
 }
 
 .line-info{
-  min-width:0;              /* allow shrink/ellipsis                   */
+  min-width:0;            /* may finally shrink                      */
   white-space:nowrap;
   overflow:hidden;
-  text-overflow:ellipsis;
-  align-self:center;
+  text-overflow:ellipsis; /* graceful fallback on the very narrowest */
 }
 
 /* ──────────────────────────────────────────────────────────────
