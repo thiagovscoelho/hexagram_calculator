@@ -375,7 +375,7 @@ class Hexagram {
 
     // close the loop
     seq.push(this);
-    return seq;
+    return seq.reverse();
   }
   
   static combine(lower, upper, draws = null) {
