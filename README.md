@@ -128,7 +128,7 @@ Paste a code and click **Read Hexagram** to populate the form and see results.
   * **Correctness**: which lines are “correct”. A line is correct if it is yang (1) in position 1, 3, or 5 or if it is yin (0) in position 2, 4, or 6. All lines in 63 ䷾ 101-010 *Already Across the River* are correct; all lines in 64 ䷿ 010-101 *Not Yet Across the River* are incorrect.
   * **Holding together**: whether each adjacent pair (1–2 … 5–6) holds together. This is a relation which is only defined between successive lines (1 and 2, or 2 and 3, or 3 and 4, or 4 and 5, or 5 and 6). Successive lines are said to hold together if they are opposites, i.e., one of them is yin (0) and the other yang (1).
   * **Correspondence**: whether (1–4), (2–5), (3–6) correspond. This is a relation which is only defined between line 1 and 4, line 2 and 5, and line 3 and 6. If the lines within one of these pairs are opposites of each other, then they correspond to each other.
-  * **Emblems**: the five adjacent‑line digrams (`⚌`, `⚍`, `⚎`, `⚏`), with before→after if moving
+  * **Emblems**: the four adjacent‑line digrams (`⚌`, `⚍`, `⚎`, `⚏`), with before→after if moving
 * **Trigrams (windows)**: Lower (1–3), **Lower Nuclear** (2–4), **Upper Nuclear** (3–5), Upper (4–6) for **Current** (and **Target** if moving)
 * **Derived Hexagrams** (table):
 
