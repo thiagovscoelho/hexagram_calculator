@@ -175,9 +175,13 @@ function renderResults(hex, draws) {
   pMeta.appendChild(notationOut);
   pMeta.appendChild(sep);
   pMeta.appendChild(decLabel);
-  const decStr = draws
+
+  // Only show an arrow if at least one line changes
+  const hasChange = draws && Array.isArray(hex.movingLines) && hex.movingLines.some(Boolean);
+  const decStr = hasChange
     ? `${hex.decimalBinaryValue} → ${hex.target().decimalBinaryValue}`
     : String(hex.decimalBinaryValue);
+
   pMeta.appendChild(document.createTextNode(' ' + decStr));
   targetDiv.appendChild(pMeta);
 
