@@ -65,9 +65,7 @@ function roleLabelForLine(idxZero) {
   if (ROLES_MODE === 'off') return '';
   const lineNo  = idxZero + 1; // 1..6
   const info    = Hexagram.lineInfo(lineNo);
-  if (ROLES_MODE === 'big') {
-    return `${info.role} (${info.domain})`;
-  }
+  if (ROLES_MODE === 'big') return `${info.role} (${info.domain})`;
   return info.role; // default
 }
 
@@ -112,59 +110,81 @@ function renderResults(hex, draws) {
   heading.innerHTML = `Hexagram ${hex.textualNumber}: ${hex.name} <span class="glyph">${hex.glyph}</span>`;
   targetDiv.appendChild(heading);
 
-  // basic stats
-  const binary = hex.binaryRepresentation;
-  const dashedBinary = `${binary.slice(0, 3)}-${binary.slice(3)}`;
-
+  // ====== Compact notation picker (replaces the old Binary/Decimal line) ======
   const pMeta = document.createElement('p');
-  pMeta.innerHTML =
-    `<strong>Binary:</strong> ${dashedBinary} &nbsp; • &nbsp; ` +
-    `<strong>Decimal:</strong> ${hex.decimalBinaryValue}`;
+
+  // 1) the dropdown, defaulting to Binary*
+  const select = document.createElement('select');
+  select.id = 'notationSelect';
+  [
+    { value: 'binary-star', label: 'Binary*' },
+    { value: 'binary',      label: 'Binary' },
+    { value: '9876',        label: '9876' },
+    { value: 'hanzi-star',  label: 'Hanzi*' },
+    { value: 'hanzi',       label: 'Hanzi' },
+    { value: 'glyph-star',  label: 'Unicode*' },
+    { value: 'glyph',       label: 'Unicode' }
+  ].forEach(opt => {
+    const o = document.createElement('option');
+    o.value = opt.value;
+    o.textContent = opt.label;
+    select.appendChild(o);
+  });
+  select.value = 'binary-star';
+
+  // 2) rendered notation target
+  const notationOut = document.createElement('span');
+
+  // 3) decimal readout (show target if draws were provided)
+  const decLabel = document.createElement('strong');
+  decLabel.textContent = 'Decimal:';
+
+  const sep = document.createTextNode(' \u00A0•\u00A0 ');
+  const currentDec = hex.decimalBinaryValue;
+  const targetDec  = draws ? hex.target().decimalBinaryValue : null;
+
+  // lay them out: “<select> : <value>  •  Decimal: X [→ Y]”
+  pMeta.appendChild(select);
+  pMeta.appendChild(document.createTextNode(': '));
+  pMeta.appendChild(notationOut);
+  pMeta.appendChild(sep);
+  pMeta.appendChild(decLabel);
+  pMeta.appendChild(document.createTextNode(' ' + (targetDec !== null
+    ? `${currentDec} \u2192 ${targetDec}`
+    : `${currentDec}`)));
   targetDiv.appendChild(pMeta);
 
-  /* ---------- Notations (from iching-core) ---------- */
-  const noth = document.createElement('h3');
-  noth.textContent = 'Notations';
-  noth.style.marginTop = '0.8rem';
-  targetDiv.appendChild(noth);
+  // helper → render chosen notation
+  function renderNotation(value) {
+    const haveMoves = !!draws;
+    const allStaticMask = [false, false, false, false, false, false];
 
-  const nTable = document.createElement('table');
-  nTable.style.borderCollapse = 'collapse';
-  nTable.style.marginTop = '0.4rem';
+    switch (value) {
+      case 'binary-star':
+        // include moving markers if draws exist; also show a tri-gram dash
+        return hex.render('binary', { trigramSeparator: '-' , ...(haveMoves ? {} : { movingMask: allStaticMask }) });
+      case 'binary':
+        return hex.render('binary', { trigramSeparator: '-', movingMask: allStaticMask });
+      case '9876':
+        return hex.render('9876',   { trigramSeparator: '-' }); // 9/6 inherently show movement
+      case 'hanzi-star':
+        return hex.render('hanzi',  { separator: ', ' , ...(haveMoves ? {} : { movingMask: allStaticMask }) });
+      case 'hanzi':
+        return hex.render('hanzi',  { separator: ', ', movingMask: allStaticMask });
+      case 'glyph-star': // “Unicode*”
+        return hex.render('glyph',  { separator: ', ' , ...(haveMoves ? {} : { movingMask: allStaticMask }) });
+      case 'glyph': // “Unicode”
+        return hex.render('glyph',  { separator: ', ', movingMask: allStaticMask });
+      default:
+        return '';
+    }
+  }
 
-  const nHead = document.createElement('tr');
-  ['Format', 'Value'].forEach(text => {
-    const th = document.createElement('th');
-    th.textContent = text;
-    th.style.padding = '4px 8px';
-    th.style.borderBottom = '1px solid #999';
-    th.style.textAlign = 'left';
-    nHead.appendChild(th);
-  });
-  nTable.appendChild(nHead);
-
-  /** helper to add one notation line */
-  const addNotation = (label, fmt, opts = {}) => {
-    const tr = document.createElement('tr');
-    const td1 = document.createElement('td');
-    td1.textContent = label;
-    td1.style.padding = '3px 8px';
-    const td2 = document.createElement('td');
-    td2.style.padding = '3px 8px';
-    td2.textContent = hex.render(fmt, opts);
-    tr.appendChild(td1);
-    tr.appendChild(td2);
-    nTable.appendChild(tr);
-  };
-
-  addNotation('Binary (1/0, * = moving)', 'binary', { trigramSeparator: '-' });
-  addNotation('Glyphs (⚊/⚋, * = moving)', 'glyph',  { trigramSeparator: ' ' });
-  addNotation('9876 (9/6 = moving)',      '9876',   { trigramSeparator: ' ' });
-  addNotation('Hanzi (阳/阴, * = moving)', 'hanzi',  { trigramSeparator: ' ' });
-  addNotation('Short Strength',            'shortStrength', { trigramSeparator: ' ' });
-  addNotation('Long Strength',             'longStrength',  { trigramSeparator: ' / ' });
-
-  targetDiv.appendChild(nTable);
+  // initial render + change handler
+  const updateNotation = () => { notationOut.textContent = renderNotation(select.value); };
+  select.addEventListener('change', updateNotation);
+  updateNotation();
+  // ====== end notation picker ======
 
   /* ---------- upper / lower trigram read-out ---------- */
   const pTris = document.createElement('p');
@@ -281,7 +301,7 @@ function renderResults(hex, draws) {
     ).join('<br>');
   infoDiv.appendChild(pCorrsp);
 
-  /* ----- Emblems (new) ----- */
+  /* ----- Emblems (adjacent-line digrams) ----- */
   const emDiv = document.createElement('div');
   const emHead = document.createElement('p');
   emHead.innerHTML = '<strong>Emblems (adjacent-line digrams):</strong>';
@@ -305,7 +325,7 @@ function renderResults(hex, draws) {
     });
   emTable.appendChild(hdr);
 
-  hex.emblems().forEach((em, i) => {
+  hex.emblems().forEach((em) => {
     const tr = document.createElement('tr');
     const cells = [
       `(${em.pair[0]},${em.pair[1]})`,
