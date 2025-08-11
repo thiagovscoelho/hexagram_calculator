@@ -102,6 +102,38 @@ form.addEventListener('submit', (e) => {
   renderResults(hexagram, draws.length === 6 ? draws : null);
 });
 
+/* ===== NOTATION READER (NEW) ===================================== */
+(function addNotationReader() {
+  const btn = document.getElementById('readBtn');
+  const inp = document.getElementById('notationInput');
+  if (!btn || !inp) return;
+
+  btn.addEventListener('click', () => {
+    const raw = (inp.value || '').trim();
+    if (!raw) {
+      alert('Please paste or type a hexagram code.');
+      return;
+    }
+    let parsed;
+    try {
+      parsed = Hexagram.parse(raw, { format: 'auto' }); // auto-detects Binary/Glyph/9876/Hanzi/Strength
+    } catch (err) {
+      alert('Could not read that code: ' + err.message);
+      return;
+    }
+
+    // Fill the form fields so users can see/adjust inputs later.
+    document.getElementById('lower').value = parsed.lowerTrigram._index; // indices 1..8
+    document.getElementById('upper').value = parsed.upperTrigram._index;
+
+    const drawInputs = document.querySelectorAll('#drawInputs input');
+    parsed.draws.forEach((d, i) => { drawInputs[i].value = d; });
+
+    // Render using the parsed hexagram + its canonical draws
+    renderResults(parsed, parsed.draws);
+  });
+})();
+
 function renderResults(hex, draws) {
   const targetDiv = document.getElementById('results');
   targetDiv.innerHTML = '';
@@ -110,10 +142,10 @@ function renderResults(hex, draws) {
   heading.innerHTML = `Hexagram ${hex.textualNumber}: ${hex.name} <span class="glyph">${hex.glyph}</span>`;
   targetDiv.appendChild(heading);
 
-  // ====== Compact notation picker (replaces the old Binary/Decimal line) ======
+  // ====== Compact notation picker (Binary* default) ======
   const pMeta = document.createElement('p');
+  pMeta.className = 'notation-toolbar'; // NEW: style the picker row
 
-  // 1) the dropdown, defaulting to Binary*
   const select = document.createElement('select');
   select.id = 'notationSelect';
   [
@@ -132,59 +164,50 @@ function renderResults(hex, draws) {
   });
   select.value = 'binary-star';
 
-  // 2) rendered notation target
   const notationOut = document.createElement('span');
+  notationOut.className = 'notation-out'; // NEW: pill styling for the code
 
-  // 3) decimal readout (show target if draws were provided)
   const decLabel = document.createElement('strong');
   decLabel.textContent = 'Decimal:';
 
   const sep = document.createTextNode(' \u00A0•\u00A0 ');
-  const currentDec = hex.decimalBinaryValue;
-  const targetDec  = draws ? hex.target().decimalBinaryValue : null;
 
-  // lay them out: “<select> : <value>  •  Decimal: X [→ Y]”
   pMeta.appendChild(select);
   pMeta.appendChild(document.createTextNode(': '));
   pMeta.appendChild(notationOut);
   pMeta.appendChild(sep);
   pMeta.appendChild(decLabel);
-  pMeta.appendChild(document.createTextNode(' ' + (targetDec !== null
-    ? `${currentDec} \u2192 ${targetDec}`
-    : `${currentDec}`)));
+  pMeta.appendChild(document.createTextNode(' ' + hex.decimalBinaryValue));
   targetDiv.appendChild(pMeta);
 
-  // helper → render chosen notation
   function renderNotation(value) {
     const haveMoves = !!draws;
     const allStaticMask = [false, false, false, false, false, false];
 
     switch (value) {
       case 'binary-star':
-        // include moving markers if draws exist; also show a tri-gram dash
-        return hex.render('binary', { trigramSeparator: '-' , ...(haveMoves ? {} : { movingMask: allStaticMask }) });
+        return hex.render('binary', { trigramSeparator: '-', ...(haveMoves ? {} : { movingMask: allStaticMask }) });
       case 'binary':
         return hex.render('binary', { trigramSeparator: '-', movingMask: allStaticMask });
       case '9876':
-        return hex.render('9876',   { trigramSeparator: '-' }); // 9/6 inherently show movement
+        return hex.render('9876',   { trigramSeparator: '-' });
       case 'hanzi-star':
-        return hex.render('hanzi',  { separator: ', ' , ...(haveMoves ? {} : { movingMask: allStaticMask }) });
+        return hex.render('hanzi',  { separator: ', ', ...(haveMoves ? {} : { movingMask: allStaticMask }) });
       case 'hanzi':
         return hex.render('hanzi',  { separator: ', ', movingMask: allStaticMask });
-      case 'glyph-star': // “Unicode*”
-        return hex.render('glyph',  { separator: ', ' , ...(haveMoves ? {} : { movingMask: allStaticMask }) });
-      case 'glyph': // “Unicode”
+      case 'glyph-star':
+        return hex.render('glyph',  { separator: ', ', ...(haveMoves ? {} : { movingMask: allStaticMask }) });
+      case 'glyph':
         return hex.render('glyph',  { separator: ', ', movingMask: allStaticMask });
       default:
         return '';
     }
   }
 
-  // initial render + change handler
   const updateNotation = () => { notationOut.textContent = renderNotation(select.value); };
   select.addEventListener('change', updateNotation);
   updateNotation();
-  // ====== end notation picker ======
+  // ===== end notation picker =====
 
   /* ---------- upper / lower trigram read-out ---------- */
   const pTris = document.createElement('p');
@@ -301,55 +324,20 @@ function renderResults(hex, draws) {
     ).join('<br>');
   infoDiv.appendChild(pCorrsp);
 
-  /* ----- Emblems (adjacent-line digrams) ----- */
-  const emDiv = document.createElement('div');
-  const emHead = document.createElement('p');
-  emHead.innerHTML = '<strong>Emblems (adjacent-line digrams):</strong>';
-  emDiv.appendChild(emHead);
-
-  const emTable = document.createElement('table');
-  emTable.style.borderCollapse = 'collapse';
-  emTable.style.marginTop = '0.3rem';
-
-  const haveTarget = !!draws;
-  const hdr = document.createElement('tr');
-  ['Pair', 'From (glyph)', 'From (name)']
-    .concat(haveTarget ? ['To (glyph)', 'To (name)', 'Changed?'] : [])
-    .forEach(text => {
-      const th = document.createElement('th');
-      th.textContent = text;
-      th.style.padding = '4px 8px';
-      th.style.borderBottom = '1px solid #999';
-      th.style.textAlign = 'left';
-      hdr.appendChild(th);
-    });
-  emTable.appendChild(hdr);
-
-  hex.emblems().forEach((em) => {
-    const tr = document.createElement('tr');
-    const cells = [
-      `(${em.pair[0]},${em.pair[1]})`,
-      em.from.glyph,
-      em.from.name
-    ];
-    if (haveTarget) {
-      cells.push(em.to.glyph, em.to.name, em.changed ? 'Yes' : 'No');
-    }
-    cells.forEach((val, col) => {
-      const td = document.createElement('td');
-      td.textContent = val;
-      td.style.padding = '3px 8px';
-      if ((haveTarget && (col === 1 || col === 3)) || (!haveTarget && col === 1)) {
-        td.style.fontSize = '1.1rem';
+  /* ----- Emblems (plain text) ----- */
+  const pEmblems = document.createElement('p');
+  pEmblems.innerHTML = '<strong>Emblems (adjacent-line digrams):</strong><br>' +
+    hex.emblems().map(em => {
+      const from = `${em.from.binary} ${em.from.glyph} ${em.from.name}`;
+      // Only show the arrow/“to” when there are draws AND the emblem actually changes
+      if (draws && em.changed) {
+        const to = `${em.to.binary} ${em.to.glyph} ${em.to.name}`;
+        return `Lines ${em.pair[0]} and ${em.pair[1]}: ${from} → ${to}`;
       }
-      tr.appendChild(td);
-    });
-    emTable.appendChild(tr);
-  });
-
-  emDiv.appendChild(emTable);
-  infoDiv.appendChild(emDiv);
-
+      return `Lines ${em.pair[0]} and ${em.pair[1]}: ${from}`;
+    }).join('<br>');
+  infoDiv.appendChild(pEmblems);
+  
   targetDiv.appendChild(infoDiv);
 
   // ─── derived hexagrams table ────────────────────────────────────────────────
@@ -381,19 +369,16 @@ function renderResults(hex, draws) {
     ['Triple Fifth Nuclear',     fifthN.fifthNuclear().fifthNuclear()]
   );
 
-  //heading
   const tableHeading = document.createElement('h3');
   tableHeading.textContent = 'Derived Hexagrams';
   tableHeading.style.marginTop = '1.5rem';
   tableHeading.style.marginBottom = '0.5rem';
   targetDiv.appendChild(tableHeading);
 
-  // build the table
   const table = document.createElement('table');
   table.style.borderCollapse = 'collapse';
   table.style.marginTop = '1rem';
 
-  // header
   const headerRow = document.createElement('tr');
   ['Relation', 'No.', 'Name', 'Glyph'].forEach(text => {
     const th = document.createElement('th');
@@ -405,7 +390,6 @@ function renderResults(hex, draws) {
   });
   table.appendChild(headerRow);
 
-  // rows
   derivedArr.forEach(([label, h, isTarget]) => {
     const tr = document.createElement('tr');
     if (isTarget) {
@@ -436,7 +420,6 @@ function renderResults(hex, draws) {
   cycTable.style.borderCollapse = 'collapse';
   cycTable.style.marginTop = '0.4rem';
 
-  // header
   const headRow = document.createElement('tr');
   ['Step', 'No.', 'Name', 'Glyph'].forEach(label => {
     const th = document.createElement('th');
@@ -448,7 +431,6 @@ function renderResults(hex, draws) {
   });
   cycTable.appendChild(headRow);
 
-  // rows
   cycleArr.forEach((h, idx) => {
     const tr = document.createElement('tr');
     [idx + 1, h.textualNumber, h.name, h.glyph].forEach((val, col) => {
@@ -466,29 +448,16 @@ function renderResults(hex, draws) {
   // ─── flower (antecedents & consequents) ──────────────────────────
   const { antecedents, consequents } = hex.flower();
 
-  /* 1.  helper → which single line differs?  1 = bottom … 6 = top */
   function changedLine(orig, variant) {
-    const a = orig.lines,
-          b = variant.lines;
+    const a = orig.lines, b = variant.lines;
     for (let i = 0; i < 6; i++) if (a[i] !== b[i]) return i + 1;
   }
 
-  /* 2.  tag every petal with its line # and kind,
-          then sort so line 6 comes first, line 1 last  */
   const petals = [
-    ...antecedents.map(h => ({
-        kind: 'Antecedent',
-        hex:  h,
-        line: changedLine(hex, h)          // 1…6
-    })),
-    ...consequents.map(h => ({
-        kind: 'Consequent',
-        hex:  h,
-        line: changedLine(hex, h)
-    }))
-  ].sort((p, q) => q.line - p.line);       // descending ⇒ 6 → 1
+    ...antecedents.map(h => ({ kind: 'Antecedent', hex: h, line: changedLine(hex, h) })),
+    ...consequents.map(h => ({ kind: 'Consequent', hex: h, line: changedLine(hex, h) }))
+  ].sort((p, q) => q.line - p.line); // 6 → 1
 
-  /* 3.  build the table */
   const flowerHeader = document.createElement('h3');
   flowerHeader.textContent = 'Flower';
   flowerHeader.style.marginTop = '1.4rem';
@@ -498,7 +467,6 @@ function renderResults(hex, draws) {
   flTable.style.borderCollapse = 'collapse';
   flTable.style.marginTop = '0.5rem';
 
-  /* header row (unchanged) */
   const flHead = document.createElement('tr');
   ['Type', 'No.', 'Name', 'Glyph'].forEach(text => {
     const th = document.createElement('th');
@@ -510,7 +478,6 @@ function renderResults(hex, draws) {
   });
   flTable.appendChild(flHead);
 
-  /* rows in the new top-to-bottom order */
   petals.forEach(({ kind, hex }) => {
     const tr = document.createElement('tr');
     [kind, hex.textualNumber, hex.name, hex.glyph].forEach((val, col) => {
@@ -524,23 +491,19 @@ function renderResults(hex, draws) {
   });
 
   targetDiv.appendChild(flTable);
-  /* ─── end flower block ─────────────────────────────────────────── */
 
   // ─── story (narrative sequence) ────────────────────────────────────────────
   const storyArr = hex.story();
 
-  // header
   const storyHeader = document.createElement('h3');
   storyHeader.textContent = 'Story';
   storyHeader.style.marginTop = '1.4rem';
   targetDiv.appendChild(storyHeader);
 
-  // build table
   const stTable = document.createElement('table');
   stTable.style.borderCollapse = 'collapse';
   stTable.style.marginTop = '0.5rem';
 
-  // header row
   const stHead = document.createElement('tr');
   ['Step', 'No.', 'Name', 'Glyph'].forEach(text => {
     const th = document.createElement('th');
@@ -552,7 +515,6 @@ function renderResults(hex, draws) {
   });
   stTable.appendChild(stHead);
 
-  // rows
   storyArr.forEach((h, idx) => {
     const tr = document.createElement('tr');
     [idx, h.textualNumber, h.name, h.glyph].forEach((val, col) => {
