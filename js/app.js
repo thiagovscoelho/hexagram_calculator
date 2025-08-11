@@ -328,22 +328,63 @@ function renderResults(hex, draws) {
       `Line ${p.a} ${p.corresponds ? 'corresponds with' : 'does not correspond with'} line ${p.b}`
     ).join('<br>');
   infoDiv.appendChild(pCorrsp);
-
-  /* ----- Emblems (plain text) ----- */
-  const pEmblems = document.createElement('p');
-  pEmblems.innerHTML = '<strong>Emblems (adjacent-line digrams):</strong><br>' +
-    hex.emblems().map(em => {
-      const from = `${em.from.binary} ${em.from.glyph} ${em.from.name}`;
-      // Only show the arrow/“to” when there are draws AND the emblem actually changes
-      if (draws && em.changed) {
-        const to = `${em.to.binary} ${em.to.glyph} ${em.to.name}`;
-        return `Lines ${em.pair[0]} and ${em.pair[1]}: ${from} → ${to}`;
-      }
-      return `Lines ${em.pair[0]} and ${em.pair[1]}: ${from}`;
-    }).join('<br>');
-  infoDiv.appendChild(pEmblems);
   
   targetDiv.appendChild(infoDiv);
+  
+  // ─── Emblems (adjacent-line digrams) table ─────────────────────────────────
+  (function addEmblemsTable() {
+    const heading = document.createElement('h3');
+    heading.textContent = 'Emblems';
+    heading.style.marginTop = '1.2rem';
+    targetDiv.appendChild(heading);
+
+    const table = document.createElement('table');
+    table.style.borderCollapse = 'collapse';
+    table.style.marginTop = '0.5rem';
+
+    const hasTarget = !!draws;
+
+    // Header
+    const head = document.createElement('tr');
+    ['Lines', 'Current'].concat(hasTarget ? ['Target'] : []).forEach(text => {
+      const th = document.createElement('th');
+      th.textContent = text;
+      th.style.padding = '4px 8px';
+      th.style.borderBottom = '1px solid #999';
+      th.style.textAlign = 'left';
+      head.appendChild(th);
+    });
+    table.appendChild(head);
+
+    const fmt = (x) => `${x.binary} ${x.glyph} ${x.name}`;
+
+    // Rows
+    hex.emblems().forEach(em => {
+      const tr = document.createElement('tr');
+
+      const tdLines = document.createElement('td');
+      tdLines.textContent = em.pair.join(',');
+      tdLines.style.padding = '3px 8px';
+      tr.appendChild(tdLines);
+
+      const tdCur = document.createElement('td');
+      tdCur.textContent = fmt(em.from);
+      tdCur.style.padding = '3px 8px';
+      tr.appendChild(tdCur);
+
+      if (hasTarget) {
+        const tdTgt = document.createElement('td');
+        tdTgt.textContent = fmt(em.changed ? em.to : em.from);
+        tdTgt.style.padding = '3px 8px';
+        tr.appendChild(tdTgt);
+      }
+
+      table.appendChild(tr);
+    });
+
+    table.classList.add('emblems-table');
+    targetDiv.appendChild(table);
+  })();
 
   // ─── Trigrams (windows over lines 1–6) ─────────────────────────────────────
   // Shows trigrams for lines 1–3 (Lower), 2–4 (Lower Nuclear),

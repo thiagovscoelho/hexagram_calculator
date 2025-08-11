@@ -276,7 +276,7 @@ input.code-field[type="text"]{
   padding: .25rem .5rem;
   border: 1px solid var(--clr-border);
   border-radius: 999px;
-  background: #f7f7f7;
+  background: #fafafa;
   /*font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;*/
   max-width: 100%;
   white-space: nowrap;
@@ -370,3 +370,4 @@ td:last-child{            /* glyph column */
 }
 
 table.trigrams-table td:last-child{ font-size: inherit; white-space: normal; }
+table.emblems-table td:last-child{ font-size: inherit; white-space: normal; }
