@@ -1,4 +1,4 @@
-/* ========== App Logic & UI ========= */
+/* ========== App Logic & UI ========= */
 // generate six number inputs dynamically so they can be styled uniformly
 (function addDrawInputs() {
   const container = document.getElementById('drawInputs');
@@ -60,30 +60,15 @@ function getThemeGroup(hex) {
 const _params    = new URLSearchParams(window.location.search);
 const ROLES_MODE = (_params.get('roles') || 'on').toLowerCase(); // 'on'|'off'|'big'
 
-const ROLES_BASE = [
-  'Common-man',          // line 1  (bottom)
-  'The Great Official',  // line 2
-  'Transitional',        // line 3
-  'Minister/Advisor',    // line 4
-  'The Ruler',           // line 5
-  'The Sage'             // line 6  (top)
-];
-
-const ROLES_BIG = [
-  'Common-man (Earth)',          // line 1
-  'The Great Official (Earth)',  // line 2
-  'Transitional (Man)',          // line 3
-  'Minister/Advisor (Man)',      // line 4
-  'The Ruler (Heaven)',          // line 5
-  'The Sage (Heaven)'            // line 6
-];
-
+/** Build the label for a 0-based line index from Hexagram’s static metadata. */
 function roleLabelForLine(idxZero) {
-  switch (ROLES_MODE) {
-    case 'off': return '';                      // no role text
-    case 'big': return ROLES_BIG[idxZero];
-    default:    return ROLES_BASE[idxZero];     // normal
+  if (ROLES_MODE === 'off') return '';
+  const lineNo  = idxZero + 1; // 1..6
+  const info    = Hexagram.lineInfo(lineNo);
+  if (ROLES_MODE === 'big') {
+    return `${info.role} (${info.domain})`;
   }
+  return info.role; // default
 }
 
 // handle form submission
@@ -104,7 +89,7 @@ form.addEventListener('submit', (e) => {
     .filter((v) => !isNaN(v));
 
   if (draws.length !== 0 && draws.length !== 6) {
-    alert('Please leave all draw boxes empty or fill in EXACTLY six integers (1 – 8).');
+    alert('Please leave all draw boxes empty or fill in EXACTLY six integers (1 – 8).');
     return;
   }
 
@@ -124,7 +109,7 @@ function renderResults(hex, draws) {
   targetDiv.innerHTML = '';
 
   const heading = document.createElement('h2');
-  heading.innerHTML = `Hexagram ${hex.textualNumber}: ${hex.name} <span class="glyph">${hex.glyph}</span>`;
+  heading.innerHTML = `Hexagram ${hex.textualNumber}: ${hex.name} <span class="glyph">${hex.glyph}</span>`;
   targetDiv.appendChild(heading);
 
   // basic stats
@@ -135,17 +120,60 @@ function renderResults(hex, draws) {
   pMeta.innerHTML =
     `<strong>Binary:</strong> ${dashedBinary} &nbsp; • &nbsp; ` +
     `<strong>Decimal:</strong> ${hex.decimalBinaryValue}`;
-
   targetDiv.appendChild(pMeta);
+
+  /* ---------- Notations (from iching-core) ---------- */
+  const noth = document.createElement('h3');
+  noth.textContent = 'Notations';
+  noth.style.marginTop = '0.8rem';
+  targetDiv.appendChild(noth);
+
+  const nTable = document.createElement('table');
+  nTable.style.borderCollapse = 'collapse';
+  nTable.style.marginTop = '0.4rem';
+
+  const nHead = document.createElement('tr');
+  ['Format', 'Value'].forEach(text => {
+    const th = document.createElement('th');
+    th.textContent = text;
+    th.style.padding = '4px 8px';
+    th.style.borderBottom = '1px solid #999';
+    th.style.textAlign = 'left';
+    nHead.appendChild(th);
+  });
+  nTable.appendChild(nHead);
+
+  /** helper to add one notation line */
+  const addNotation = (label, fmt, opts = {}) => {
+    const tr = document.createElement('tr');
+    const td1 = document.createElement('td');
+    td1.textContent = label;
+    td1.style.padding = '3px 8px';
+    const td2 = document.createElement('td');
+    td2.style.padding = '3px 8px';
+    td2.textContent = hex.render(fmt, opts);
+    tr.appendChild(td1);
+    tr.appendChild(td2);
+    nTable.appendChild(tr);
+  };
+
+  addNotation('Binary (1/0, * = moving)', 'binary', { trigramSeparator: '-' });
+  addNotation('Glyphs (⚊/⚋, * = moving)', 'glyph',  { trigramSeparator: ' ' });
+  addNotation('9876 (9/6 = moving)',      '9876',   { trigramSeparator: ' ' });
+  addNotation('Hanzi (阳/阴, * = moving)', 'hanzi',  { trigramSeparator: ' ' });
+  addNotation('Short Strength',            'shortStrength', { trigramSeparator: ' ' });
+  addNotation('Long Strength',             'longStrength',  { trigramSeparator: ' / ' });
+
+  targetDiv.appendChild(nTable);
 
   /* ---------- upper / lower trigram read-out ---------- */
   const pTris = document.createElement('p');
+  pTris.style.marginTop = '0.8rem';
   pTris.innerHTML =
     `<strong>Upper trigram:</strong> Trigram ${hex.upperTrigram.sequence} ${hex.upperTrigram.glyph} ` +
     `${hex.upperTrigram.binaryRepresentation} (${hex.upperTrigram.decimalBinaryValue}) ${hex.upperTrigram.name}<br>` +
     `<strong>Lower trigram:</strong> Trigram ${hex.lowerTrigram.sequence} ${hex.lowerTrigram.glyph} ` +
     `${hex.lowerTrigram.binaryRepresentation} (${hex.lowerTrigram.decimalBinaryValue}) ${hex.lowerTrigram.name}`;
-
   targetDiv.appendChild(pTris);
 
   // ─── graphical line diagram + per-line commentary ───────────────────────
@@ -253,6 +281,55 @@ function renderResults(hex, draws) {
     ).join('<br>');
   infoDiv.appendChild(pCorrsp);
 
+  /* ----- Emblems (new) ----- */
+  const emDiv = document.createElement('div');
+  const emHead = document.createElement('p');
+  emHead.innerHTML = '<strong>Emblems (adjacent-line digrams):</strong>';
+  emDiv.appendChild(emHead);
+
+  const emTable = document.createElement('table');
+  emTable.style.borderCollapse = 'collapse';
+  emTable.style.marginTop = '0.3rem';
+
+  const haveTarget = !!draws;
+  const hdr = document.createElement('tr');
+  ['Pair', 'From (glyph)', 'From (name)']
+    .concat(haveTarget ? ['To (glyph)', 'To (name)', 'Changed?'] : [])
+    .forEach(text => {
+      const th = document.createElement('th');
+      th.textContent = text;
+      th.style.padding = '4px 8px';
+      th.style.borderBottom = '1px solid #999';
+      th.style.textAlign = 'left';
+      hdr.appendChild(th);
+    });
+  emTable.appendChild(hdr);
+
+  hex.emblems().forEach((em, i) => {
+    const tr = document.createElement('tr');
+    const cells = [
+      `(${em.pair[0]},${em.pair[1]})`,
+      em.from.glyph,
+      em.from.name
+    ];
+    if (haveTarget) {
+      cells.push(em.to.glyph, em.to.name, em.changed ? 'Yes' : 'No');
+    }
+    cells.forEach((val, col) => {
+      const td = document.createElement('td');
+      td.textContent = val;
+      td.style.padding = '3px 8px';
+      if ((haveTarget && (col === 1 || col === 3)) || (!haveTarget && col === 1)) {
+        td.style.fontSize = '1.1rem';
+      }
+      tr.appendChild(td);
+    });
+    emTable.appendChild(tr);
+  });
+
+  emDiv.appendChild(emTable);
+  infoDiv.appendChild(emDiv);
+
   targetDiv.appendChild(infoDiv);
 
   // ─── derived hexagrams table ────────────────────────────────────────────────
@@ -326,7 +403,7 @@ function renderResults(hex, draws) {
   });
 
   targetDiv.appendChild(table);
-  
+
   // ─── rotation-cycle table ──────────────────────────────────────────────────
   const cycleArr = hex.cycle();     // [this, …]
 
@@ -365,7 +442,7 @@ function renderResults(hex, draws) {
   });
 
   targetDiv.appendChild(cycTable);
-  
+
   // ─── flower (antecedents & consequents) ──────────────────────────
   const { antecedents, consequents } = hex.flower();
 
@@ -429,8 +506,6 @@ function renderResults(hex, draws) {
   targetDiv.appendChild(flTable);
   /* ─── end flower block ─────────────────────────────────────────── */
 
-
-    
   // ─── story (narrative sequence) ────────────────────────────────────────────
   const storyArr = hex.story();
 
