@@ -175,7 +175,10 @@ function renderResults(hex, draws) {
   pMeta.appendChild(notationOut);
   pMeta.appendChild(sep);
   pMeta.appendChild(decLabel);
-  pMeta.appendChild(document.createTextNode(' ' + hex.decimalBinaryValue));
+  const decStr = draws
+    ? `${hex.decimalBinaryValue} → ${hex.target().decimalBinaryValue}`
+    : String(hex.decimalBinaryValue);
+  pMeta.appendChild(document.createTextNode(' ' + decStr));
   targetDiv.appendChild(pMeta);
 
   function renderNotation(value) {
