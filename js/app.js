@@ -294,7 +294,7 @@ function renderResults(hex, draws) {
   infoDiv.style.margin = '1rem 0';
 
   const hInfo = document.createElement('h3');
-  hInfo.textContent = 'Line information:';
+  hInfo.textContent = 'Line information';
   infoDiv.appendChild(hInfo);
 
   /* ----- Correctness ----- */
@@ -337,6 +337,86 @@ function renderResults(hex, draws) {
   infoDiv.appendChild(pEmblems);
   
   targetDiv.appendChild(infoDiv);
+
+  // ─── Trigrams (windows over lines 1–6) ─────────────────────────────────────
+  // Shows trigrams for lines 1–3 (Lower), 2–4 (Lower Nuclear),
+  // 3–5 (Upper Nuclear), and 4–6 (Upper), for Current and (if present) Target.
+  (function addTrigramsTable() {
+    const triHeading = document.createElement('h3');
+    triHeading.textContent = 'Trigrams';
+    triHeading.style.marginTop = '1.2rem';
+    targetDiv.appendChild(triHeading);
+
+    const triTable = document.createElement('table');
+    triTable.style.borderCollapse = 'collapse';
+    triTable.style.marginTop = '0.5rem';
+
+    // If draws are present, we have a target hexagram; otherwise only "Current".
+    const tgtHex = draws ? hex.target() : null;
+
+    const head = document.createElement('tr');
+    ['Lines', 'Part', 'Current'].concat(tgtHex ? ['Target'] : []).forEach(text => {
+      const th = document.createElement('th');
+      th.textContent = text;
+      th.style.padding = '4px 8px';
+      th.style.borderBottom = '1px solid #999';
+      th.style.textAlign = 'left';
+      head.appendChild(th);
+    });
+    triTable.appendChild(head);
+
+    const bitsNow  = hex.lines;                // [l1..l6] bottom→top
+    const bitsThen = tgtHex ? tgtHex.lines : null;
+
+    // helper: build a Trigram from three 1-based line positions
+    const triFrom = (bitList, a, b, c) => {
+      const bin = '' + bitList[a - 1] + bitList[b - 1] + bitList[c - 1];
+      return new Trigram(parseInt(bin, 2) + 1);
+    };
+
+    // helper: format like existing trigram readout
+    const triLabel = (t) =>
+      `Trigram ${t.sequence} ${t.glyph} ${t.binaryRepresentation} (${t.decimalBinaryValue}) ${t.name}`;
+
+    const WINDOWS = [
+      { lines: [1, 2, 3], part: 'Lower' },
+      { lines: [2, 3, 4], part: 'Lower Nuclear' },
+      { lines: [3, 4, 5], part: 'Upper Nuclear' },
+      { lines: [4, 5, 6], part: 'Upper' }
+    ];
+
+    WINDOWS.forEach(w => {
+      const tr = document.createElement('tr');
+
+      const tdLines = document.createElement('td');
+      tdLines.textContent = w.lines.join(',');
+      tdLines.style.padding = '3px 8px';
+      tr.appendChild(tdLines);
+
+      const tdPart = document.createElement('td');
+      tdPart.textContent = w.part;
+      tdPart.style.padding = '3px 8px';
+      tr.appendChild(tdPart);
+
+      const triCur = triFrom(bitsNow,  w.lines[0], w.lines[1], w.lines[2]);
+      const tdCur  = document.createElement('td');
+      tdCur.textContent = triLabel(triCur);
+      tdCur.style.padding = '3px 8px';
+      tr.appendChild(tdCur);
+
+      if (bitsThen) {
+        const triTgt = triFrom(bitsThen, w.lines[0], w.lines[1], w.lines[2]);
+        const tdTgt  = document.createElement('td');
+        tdTgt.textContent = triLabel(triTgt);
+        tdTgt.style.padding = '3px 8px';
+        tr.appendChild(tdTgt);
+      }
+
+      triTable.appendChild(tr);
+    });
+    triTable.classList.add('trigrams-table');
+    targetDiv.appendChild(triTable);
+  })();
 
   // ─── derived hexagrams table ────────────────────────────────────────────────
   const targetHex  = draws ? hex.target() : null;

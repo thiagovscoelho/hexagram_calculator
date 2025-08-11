@@ -369,3 +369,4 @@ td:last-child{            /* glyph column */
   fieldset{ grid-column: 1 / -1; }
 }
 
+table.trigrams-table td:last-child{ font-size: inherit; white-space: normal; }
