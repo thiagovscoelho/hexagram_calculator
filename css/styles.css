@@ -86,6 +86,8 @@ select{
   transition: border-color .15s, box-shadow .15s;
 }
 
+#notationSelect {background: #fafafa;}
+
 input::placeholder{ color: #999; }
 
 input:focus,
