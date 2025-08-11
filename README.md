@@ -49,7 +49,7 @@ Optionally serve with any static server (e.g., `python -m http.server`) if you p
 
 ## Why d8 + yarrow distribution
 
-The app works with **integers 1–8** so you can reproduce the **yarrow‑stalk** change likelihoods while still rolling by hand.
+The app works with **integers 1–8** so you can reproduce the **yarrow‑stalk** change likelihoods while still rolling by hand. (Hacker, *Handbook*, p. 138)
 
 * If a line is **yang (1)**, a draw of **1–3** marks it **moving** (probability **3/8**), otherwise it’s static.
 * If a line is **yin (0)**, a draw of **8** marks it **moving** (probability **1/8**), otherwise it’s static.
@@ -123,7 +123,7 @@ Paste a code and click **Read Hexagram** to populate the form and see results.
 * **Trigram read‑out**: for each trigram → sequence index, glyph, binary, decimal, and name
 * **Line diagram**: six SVG bars (solid = yang, broken = yin); moving lines are highlighted; optional role labels
 * **Theme group**: a topical category. Each hexagram is sorted into one of Hacker’s eight thematic clusters (e.g., *Groups*, *Big in Power*, *Proper Conduct*). The mapping is given in page 68 of Hacker’s *Handbook* and defended in pages 69–72. There are exactly eight hexagrams per cluster.
-* **Line information**:
+* **Line information** (relations from Hacker, *Handbook*, pp. 13–14; emblems from Hacker, *Handbook*, p. 33):
 
   * **Correctness**: which lines are “correct”. A line is correct if it is yang (1) in position 1, 3, or 5 or if it is yin (0) in position 2, 4, or 6. All lines in 63 ䷾ 101-010 *Already Across the River* are correct; all lines in 64 ䷿ 010-101 *Not Yet Across the River* are incorrect.
   * **Holding together**: whether each adjacent pair (1–2 … 5–6) holds together. This is a relation which is only defined between successive lines (1 and 2, or 2 and 3, or 3 and 4, or 4 and 5, or 5 and 6). Successive lines are said to hold together if they are opposites, i.e., one of them is yin (0) and the other yang (1).
@@ -134,9 +134,9 @@ Paste a code and click **Read Hexagram** to populate the form and see results.
 
   * **Target** (if moving), **Opposite** (flip all six lines, yang↔yin), **Inverse** (turn the hexagram upside‑down, so lines are in reverse order)
   * **Nuclear** plus **Second/Third/Fourth/Fifth Nuclear** and their **Double/Triple** variants (see chapter 6 of Hacker’s *Handbook*, generally). The hexagrams may be divided into four equal groups according to their double nuclear trigram, as Edward Hacker did in the *Handbook*, pp. 80–87, since applying the nuclear trigram operation twice sends all hexagrams to either 01 ䷀ or 02 ䷁ (which are their own nuclear hexagram) or 63 ䷾ or 64 ䷿ (which are each other’s nuclear hexagram, in a loop). The second and third nuclear trigram operations also hit rock bottom after two applications. The fourth and fifth operations take three applications to hit rock bottom, which is why a “triple” operation is provided only for those.
-* **Cycle**: barber‑pole rotation (`move line 6 → bottom` and shift up); shows the cycle until it repeats (length 1, 2, 3, or 6)
-* **Flower**: all **Antecedents** (flip one line yin→yang) and **Consequents** (flip one line yang→yin)
-* **Story**: narrative sequence starting at the original, then flipping cumulative lines 1…k, then k…6, and returning to the original
+* **Cycle**: barber‑pole rotation (`move line 6 → bottom` and shift up); shows the cycle until it repeats (length 1, 2, 3, or 6). See Hacker, *Handbook*, p. 93.
+* **Flower**: all **Antecedents** (flip one line yin→yang) and **Consequents** (flip one line yang→yin); see Hacker, *Handbook*, pp. 94–96.
+* **Story**: narrative sequence starting at the original, then flipping cumulative lines 1…k, then k…6, and returning to the original; see Hacker, *Handbook*, pp. 96–98.
 
 > **Roles UI tweak:** append `?roles=off` to the URL to hide per‑line titles, or `?roles=big` to append the Earth/Man/Heaven domain.
 
