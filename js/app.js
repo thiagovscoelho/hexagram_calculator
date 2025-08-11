@@ -8,9 +8,7 @@
     inp.min = '1';
     inp.max = '8';
     inp.placeholder = '–';
-    inp.style.marginRight = '0.35rem';
-    inp.style.marginBottom = '0.35rem';
-    container.appendChild(inp);
+    container.appendChild(inp); // spacing handled purely by CSS now
   }
 })();
 

@@ -1,371 +1,369 @@
-/* ========== Global design tokens ========== */
-:root {
+/* ===============================
+   Design tokens
+   =============================== */
+:root{
   --font: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Noto Serif", Georgia, serif;
 
-  --clr-bg: #fafafa;           /* page background   */
-  --clr-fg: #222;              /* main foreground   */
-  --clr-subtle: #666;          /* muted text        */
-  --clr-border: #d9d9d9;       /* light borders     */
-  --clr-panel: #ffffff;        /* form & result bg  */
+  --clr-bg: #fafafa;
+  --clr-panel: #fff;
+  --clr-fg: #222;
+  --clr-subtle: #666;
+  --clr-border: #d9d9d9;
 
-  --clr-accent: #c00;          /* ← DO NOT CHANGE   */
-  --radius: 6px;
-  --shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+  --clr-accent: #c00;            /* ← keep the red accent */
+  --radius: 8px;
+  --radius-sm: 6px;
+  --shadow: 0 3px 6px rgba(0,0,0,.06);
+  --shadow-hover: 0 6px 14px rgba(0,0,0,.12);
+
+  --pad: 1.5rem;
 }
 
-/* ---------- Resets & base styles ---------- */
+/* ===============================
+   Base / reset
+   =============================== */
 *,
 *::before,
 *::after { box-sizing: border-box; }
 
-body {
+html, body { height: 100%; }
+
+body{
   margin: 0;
   padding: 2rem 1rem;
   font-family: var(--font);
   font-size: 1rem;
-  font-variant-numeric: tabular-nums;
   line-height: 1.6;
   color: var(--clr-fg);
   background: var(--clr-bg);
+  font-variant-numeric: tabular-nums;
 }
 
-/* ---------- Typography ---------- */
-h1, h2, h3, h4 {
-  font-family: var(--font);
-  margin: 0 0 0.75rem;
-  line-height: 1.25;
-}
+h1,h2,h3{ margin: 0 0 .75rem; line-height: 1.25; font-weight: 700; }
+h1{ font-size: clamp(1.8rem, 3.5vw, 2.25rem); text-align: center; }
+h2{ font-size: 1.5rem; margin-top: 2rem; }
+h3{ font-size: 1.2rem; margin-top: 1.4rem; }
 
-h1 { font-size: clamp(1.8rem, 3.5vw, 2.25rem); text-align: center; }
-h2 { font-size: 1.5rem; margin-top: 2.2rem; }
-h3 { font-size: 1.25rem; margin-top: 1.8rem; }
+p{ margin: 0 0 .85rem; }
+small.hint, p.hint { color: var(--clr-subtle); font-size: .9rem; }
 
-p { margin: 0 0 0.85rem; color: var(--clr-fg); }
-
-/* ---------- Form (fluid sizing) ---------- */
-@media (max-width: 600px) {
-  #hexForm {
-    grid-template-columns: 1fr;         /* 1-column stack                   */
-    padding: 1rem 1rem 1.25rem;
-  }
-
-  #hexForm label { font-size: clamp(1rem, 4.5vw, 1.15rem); }
-
-  #hexForm input[type="number"],
-  #drawInputs input[type="number"] {
-    font-size: clamp(1rem, 5vw, 1.25rem);
-    padding: 0.6rem 0.7rem;             /* thumb-friendly                   */
-  }
-
-  button[type="submit"] {
-    grid-column: 1 / -1;                /* full-width button                */
-    width: 100%;
-    font-size: clamp(1rem, 4.5vw, 1.2rem);
-    padding: 0.75rem 1.3rem;
-  }
-
-  fieldset { grid-column: 1 / -1; }
-}
-
-/* ---------- Form layout ---------- */
-#hexForm {
-  max-width: 780px;
+/* ===============================
+   Form panel
+   =============================== */
+#hexForm{
+  max-width: clamp(520px, 90vw, 660px);
   margin: 0 auto 2rem;
-  padding: 1.5rem 1.75rem 2rem;
+  padding: 1.25rem var(--pad) 1.5rem;
   background: var(--clr-panel);
   border: 1px solid var(--clr-border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
+
   display: grid;
-  gap: 1.25rem 1.75rem;
+  gap: 1.1rem 1.5rem;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
-#hexForm label {
+#hexForm > * { min-width: 0; }  /* prevent grid items forcing overflow */
+
+#hexForm label{
   display: flex;
   flex-direction: column;
-  font-weight: 500;
-  gap: 0.35rem;
+  gap: .35rem;
+  font-weight: 600;
 }
 
-#hexForm input[type="number"] {
+input[type="number"],
+input[type="text"],
+select{
   width: 100%;
-  padding: 0.45rem 0.5rem;
+  padding: .55rem .65rem;
   font: inherit;
-  text-align: center;
   border: 1px solid var(--clr-border);
-  border-radius: var(--radius);
-  transition: border-color 0.15s;
+  border-radius: var(--radius-sm);
+  background: #fff;
+  transition: border-color .15s, box-shadow .15s;
 }
 
-#hexForm input[type="number"]:focus {
+input::placeholder{ color: #999; }
+
+input:focus,
+select:focus{
   outline: none;
   border-color: var(--clr-accent);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--clr-accent) 40%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--clr-accent) 28%, transparent);
 }
 
-/* fieldset (moving-line draws) */
-fieldset {
+/* Fieldset for six draws */
+fieldset{
   grid-column: span 2;
-  padding: 1rem 1rem 1.25rem;
   border: 1px solid var(--clr-border);
   border-radius: var(--radius);
+  padding: 1rem;
 }
 
-legend {
-  padding: 0 0.4rem;
-  font-weight: 600;
-  font-family: var(--font);
-  white-space: normal;          /* allow wrapping                    */
-  overflow-wrap: normal;    /* break *words* only if unavoidable */
-  max-width: 100%;              /* never wider than its field-set    */
+legend{
+  padding: 0 .35rem;
+  font-weight: 700;
 }
 
-#drawInputs {
-  margin-top: 0.75rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
+#drawInputs{
+  margin-top: .75rem;
+  display: grid;
+  gap: .55rem;
+  grid-template-columns: repeat(6, minmax(3.2rem, 1fr));
 }
 
-#drawInputs input[type="number"] {
-  width: 3.5rem;
+#drawInputs input[type="number"]{
+  text-align: center;
+  width: 100%;
 }
 
-/* helper blurb inside fieldset */
-fieldset p {
-  margin-top: 0.6rem !important;
-  font-size: 0.85rem;
-  color: var(--clr-subtle);
+/* 3×2 layout on narrower screens */
+@media (max-width: 800px){
+  #drawInputs{ grid-template-columns: repeat(3, 1fr); }
 }
 
-/* ---------- Submit button ---------- */
-button[type="submit"] {
-  grid-column: span 2;
-  justify-self: start;
+/* Submit + Random buttons */
+.btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: .6rem 1.1rem;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease, color .12s ease, border-color .12s ease;
+  user-select: none;
+}
+
+.btn-primary{
   background: var(--clr-accent);
   color: #fff;
-  font-weight: 600;
-  padding: 0.55rem 1.3rem;
-  border: none;
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: transform 0.12s ease;
+  border-color: var(--clr-accent);
 }
 
-button[type="submit"]:hover {
+.btn-primary:hover{
   transform: translateY(-2px);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-hover);
 }
 
-button[type="submit"]:active {
+.btn-primary:active{
   transform: translateY(0);
   box-shadow: none;
 }
 
-/* ---------- Results section ---------- */
-#results {
-  max-width: 980px;
+.btn-outline{
+  background: #fff;
+  color: var(--clr-accent);
+  border-color: var(--clr-accent);
+}
+
+.btn-outline:hover{
+  background: #fbeaea;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.btn-outline:active{
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* Default: sit side-by-side if there’s room */
+button[type="submit"], .btn-random {
+  grid-column: auto;         /* ← key change */
+  justify-self: stretch;
+}
+
+/* Inline code-entry row (label, input, button on one line) */
+.code-input{
+  min-width: 0;
+  grid-column: 1 / -1;
+  justify-self: start;     /* don’t stretch horizontally */
+  width: max-content;      /* shrink-wrap to content */
+  max-width: 100%;         /* avoid overflow on small screens */
+  border-top: 1px solid var(--clr-border);
+  padding-top: .65rem;
+  margin-top: .2rem;
+}
+
+.code-row{
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  flex-wrap: wrap;            /* wraps nicely on small screens */
+}
+
+.code-label{
+  white-space: normal;
+  font-weight: 700;
+}
+
+input.code-field[type="text"]{
+  flex: 1 1 11ch;
+  min-width: 0;
+  max-inline-size: 48ch;
+  width: auto;
+}
+
+
+/* Safari/WebKit quirk safeguard */
+@supports (-webkit-touch-callout: none) {
+  .code-row{ overflow: hidden; }  /* makes min-content contribution = 0 */
+}
+
+/* Hint line under the row */
+.code-input .hint{
+  display: block;
+  margin-top: .35rem;
+}
+
+/* Make the hint wrap under the input only */
+.code-input .hint{
+  grid-column: 2;          /* the input column */
+  justify-self: start;
+}
+
+
+/* ===============================
+   Results section
+   =============================== */
+#results{
+  max-width: 980px;           /* same cap as before */
   margin-inline: auto;
   padding-bottom: 4rem;
 }
 
-#results p.theme-group { margin-top: 0.75rem; }
+#results p.theme-group{ margin-top: .6rem; }
 
-.glyph {
+/* Heading glyph */
+.glyph{
   font-size: 2.6rem;
   line-height: 1;
   vertical-align: middle;
-  margin-left: 0.35rem;
+  margin-left: .35rem;
 }
 
-.moving {            /* ← highlight kept red                */
+/* Move highlighting (keep red) */
+.moving{
   color: var(--clr-accent);
   font-weight: 700;
 }
 
-/* ---------- Tables (derived, cycle, flower, story) ---------- */
-table {
+/* Notation toolbar (compact row) */
+.notation-toolbar{
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  flex-wrap: wrap;
+  margin-top: .25rem;
+}
+
+.notation-toolbar select{
+  width: auto;
+  padding: .4rem .55rem;
+}
+
+.notation-out{
+  display: inline-block;
+  padding: .25rem .5rem;
+  border: 1px solid var(--clr-border);
+  border-radius: 999px;
+  background: #f7f7f7;
+  /*font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;*/
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===============================
+   Tables (derived, cycle, flower, story)
+   =============================== */
+table{
   width: 100%;
   border-collapse: collapse;
-  margin: 0.65rem 0 1.5rem;
-  font-size: clamp(0.98rem, 3.8vw, 1.1rem);
+  margin: .65rem 0 1.5rem;
+  font-size: clamp(.98rem, 3.8vw, 1.08rem);
 }
 
-th, td {
-  padding: 0.4rem 0.6rem;
-}
+th, td{ padding: .45rem .6rem; text-align: left; }
 
-@media (max-width: 480px) {
-  th, td { white-space: normal; }      /* override your current nowrap      */
-}
-
-th {
-  text-align: left;
+th{
   border-bottom: 2px solid var(--clr-border);
-  font-weight: 600;
-  font-family: var(--font);
-}
-
-tr:nth-child(even) td {
-  background: #f5f5f5;
-}
-
-tr:hover td {
-  background: #eee;
-}
-
-/* emphasise highlighted rows (e.g., target hexagram) */
-tr[style*="color: #c00"] td {
-  color: var(--clr-accent);
   font-weight: 700;
 }
 
-/* ensure large glyphs don’t break layout */
-td:last-child {
+tr:nth-child(even) td{ background: #f6f6f6; }
+tr:hover td{ background: #eee; }
+
+td:last-child{            /* glyph column */
   font-size: 1.35rem;
   white-space: nowrap;
 }
 
-/* ---------- Utilities & media queries ---------- */
-/* Make long tables horizontally scrollable on very small screens */
-@media (max-width: 480px) {
-  table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
+/* make long tables scroll on very narrow screens */
+@media (max-width: 480px){
+  table{ display: block; overflow-x: auto; white-space: nowrap; }
+  th, td{ white-space: normal; } /* allow wrapping inside cells */
 }
 
-/* Slightly tighten vertical rhythm on large screens */
-@media (min-width: 900px) {
-  body { font-size: 1.0625rem; }
-  th, td { padding: 0.45rem 0.8rem; }
-}
-
-/* === Graphical line diagram ============================================== */
+/* ===============================
+   Line diagram (keep existing behavior)
+   =============================== */
 .lines-diagram{
-  display:grid;
+  display: grid;
   grid-template-columns:
-      minmax(50px, max-content)   /* col-1: bar  (priority-1 to shrink)  */
-      1fr;        /* col-2: text (only if still needed)  */
-  column-gap:0.75rem;
-  row-gap:0.6rem;
+    minmax(50px, max-content)  /* bar shrinks first */
+    1fr;                        /* text column */
+  column-gap: .75rem;
+  row-gap: .6rem;
 }
 
-.line-row {
-  display: contents;
-}
+.line-row{ display: contents; }
 
 .line-svg{
-  width:100%;
-  max-width:260px;        /* upper cap so it never grows absurdly wide */
-  height:12px;            /* height stays rock-solid                   */
+  width: 100%;
+  max-width: 260px;          /* keep current cap */
+  height: 12px;              /* fixed height */
+  aspect-ratio: auto;        /* allow width to drive */
 }
 
-.line-svg[viewBox]{
-  /* drop intrinsic aspect-ratio – let width scale freely   */
-  aspect-ratio:auto;
-}
-
-.line-svg rect {
-  fill: var(--clr-fg);          /* dark grey/black                           */
-}
-
-.moving .line-svg rect {        /* highlight moving lines in red             */
-  fill: var(--clr-accent);
-}
+.line-svg rect{ fill: var(--clr-fg); }
+.moving .line-svg rect{ fill: var(--clr-accent); }
 
 .line-info{
-  min-width:0;            /* may finally shrink                      */
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis; /* graceful fallback on the very narrowest */
-}
-
-/* ──────────────────────────────────────────────────────────────
-   Mobile containment + orderly draw boxes
-   ────────────────────────────────────────────────────────────── */
-
-/* 0. Let grid items shrink instead of forcing a huge min-content width */
-#hexForm > * { min-width: 0; }
-
-/* 1. ≤ 600 px  → single column, padding tweaked, nothing can overflow  */
-@media (max-width: 600px) {
-  #hexForm {
-    width: 100%;                /* never wider than the viewport      */
-    max-width: 100%;
-    padding: 1rem 1rem 1.25rem; /* slimmer interior padding           */
-    grid-template-columns: 1fr; /* stack everything                   */
-    gap: 1rem;
-  }
-}
-
-
-/* More responsivity fixes */
-
-@media (max-width: 780px) {             /* kicks in before the 780-px cap */
-  #hexForm {
-    width: 100%;
-    max-width: calc(100% - 2rem);       /* respect body’s 1-rem padding   */
-    grid-template-columns: 1fr;         /* stack labels + inputs          */
-    padding: 1rem 1rem 1.25rem;         /* slimmer interior padding       */
-    gap: 1rem;
-  }
-}
-
-/* every direct child spans that single column */
-#hexForm label,
-#hexForm fieldset,
-#hexForm button[type="submit"], #hexForm .btn-random { grid-column: 1 / -1; }
-
-/* button fills the track exactly – no left/right “overshoot” */
-#hexForm button[type="submit"], #hexForm .btn-random {
-    justify-self: stretch;
-    width: auto;
-}
-
-
-/* when the container (or viewport) is too narrow for 6 × 3.2 rem
-   switch cleanly to 3 columns → 3 × 2 layout                    */
-@media (max-width: 380px) {          /* tweak if your breakpoint differs */
-  #drawInputs { grid-template-columns: repeat(3, minmax(3.2rem, 1fr)); }
-}
-
-/* make each little box flex inside its cell */
-#drawInputs input[type="number"] {
-  width: 100%;
   min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* default: six equal columns that stretch/shrink with the panel */
-#drawInputs {
-  display: grid;
-  gap: 0.55rem;
-  grid-template-columns: repeat(6, minmax(3.2rem, 1fr));
+/* ===============================
+   Slightly denser typography on big screens
+   =============================== */
+@media (min-width: 900px){
+  body{ font-size: 1.0625rem; }
+  th, td{ padding: .5rem .75rem; }
 }
 
-/* if the panel can’t hold those six, switch cleanly to 3 × 2     */
-/* tune the 520-px breakpoint up/down to taste;                   */
-/* it just needs to be wider than 6 × (3.2 rem + gap) + panel padd */
-@media (max-width: 520px) {
-  #drawInputs { grid-template-columns: repeat(3, 1fr); }
+/* Pick a breakpoint you like; 800px is a good start */
+@media (max-width: 800px){
+  /* Force each trigram field onto its own row */
+  #hexForm label:nth-of-type(1),
+  #hexForm label:nth-of-type(2){
+    grid-column: 1 / -1;
+  }
+  #hexForm button[type="submit"],
+  #hexForm .btn-random{
+    grid-column: 1 / -1;   /* take a whole row each */
+  }
+  #readBtn{width:100%;}
+  fieldset{ grid-column: 1 / -1; }
 }
 
-
-/* === white “Random Hexagram” button ============================= */
-.btn-random {
-  grid-column: span 2;          /* stay aligned with the red button   */
-  justify-self: start;
-  background: #fff;
-  color: var(--clr-accent);     /* red text                           */
-  border: 2px solid var(--clr-accent);
-  font-weight: 600;
-  padding: 0.55rem 1.3rem;
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: transform 0.12s ease, background 0.12s ease;
-}
-
-.btn-random:hover   { background: #fbeaea; transform: translateY(-2px); }
-.btn-random:active  { background: #fff;    transform: translateY(0); }
