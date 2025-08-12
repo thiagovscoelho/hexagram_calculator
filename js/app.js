@@ -182,7 +182,7 @@ function renderResults(hex, draws) {
     ? `${hex.decimalBinaryValue} → ${hex.target().decimalBinaryValue}`
     : String(hex.decimalBinaryValue);
 
-  pMeta.appendChild(document.createTextNode(' ' + decStr));
+  pMeta.appendChild(document.createTextNode(' ' + decStr));
   targetDiv.appendChild(pMeta);
 
   function renderNotation(value) {
