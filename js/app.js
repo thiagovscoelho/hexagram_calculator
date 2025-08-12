@@ -168,7 +168,7 @@ function renderResults(hex, draws) {
   const decLabel = document.createElement('strong');
   decLabel.textContent = 'Decimal:';
 
-  const sep = document.createTextNode(' \u00A0•\u00A0 ');
+  const sep = document.createTextNode(' •\u00A0');
 
   pMeta.appendChild(select);
   pMeta.appendChild(document.createTextNode(': '));
